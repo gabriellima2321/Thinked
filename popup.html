@@ -5,10 +5,10 @@
   <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
-  <h2>Nova Tarefa</h2>
+  <h2>✨ Nova Tarefa</h2>
   <div class="input-group">
-    <select id="taskClient">
-      <option value="">Nenhum cliente (Opcional)</option>
+    <select id="taskSubject">
+      <option value="">Nenhuma matéria (Opcional)</option>
     </select>
     
     <div class="date-time-row">
@@ -17,17 +17,20 @@
     </div>
     
     <input type="text" id="taskDesc" placeholder="Descrição da tarefa principal...">
+    
+    <!-- NOVO CAMPO DE LINK -->
+    <input type="url" id="taskLink" placeholder="Link útil (Opcional)...">
+    
     <button id="addTaskBtn">Adicionar Tarefa</button>
   </div>
   
   <ul id="activeTasks" class="task-list"></ul>
   
-  <!-- Novos botões organizados -->
   <div class="action-buttons">
     <a id="openHistory" class="btn-action btn-action-blue">Ver Histórico</a>
-    <a id="manageClientsBtn" class="btn-action btn-action-purple">Clientes</a>
+    <a id="manageSubjectsBtn" class="btn-action btn-action-purple">Matérias</a>
   </div>
   
-  <script src="./static/popup.js"></script>
+  <script src="static/popup.js"></script>
 </body>
 </html>

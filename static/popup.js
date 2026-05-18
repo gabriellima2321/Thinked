@@ -1,20 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
     setDefaultDateTime();
     loadActiveTasks();
-    loadClientsInSelect(); 
+    loadSubjectsInSelect(); 
 
     document.getElementById('addTaskBtn').addEventListener('click', () => {
         const desc = document.getElementById('taskDesc').value;
         const dateVal = document.getElementById('taskDate').value;
         const timeVal = document.getElementById('taskTime').value;
-        const clientVal = document.getElementById('taskClient').value; 
+        const subjectVal = document.getElementById('taskSubject').value; 
+        const linkVal = document.getElementById('taskLink').value.trim(); 
         
         if (!desc || !dateVal || !timeVal) return alert("Preencha descrição, data e hora!");
 
         const newTask = {
             id: Date.now().toString(),
             description: desc,
-            client: clientVal, 
+            subject: subjectVal, 
+            link: linkVal, // Salva o link
             createdAt: new Date().getTime(),
             dueDate: new Date(`${dateVal}T${timeVal}`).getTime(),
             completed: false,
@@ -27,7 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
             tasks.push(newTask);
             chrome.storage.local.set({tasks}, () => {
                 document.getElementById('taskDesc').value = '';
-                document.getElementById('taskClient').value = ''; 
+                document.getElementById('taskSubject').value = ''; 
+                document.getElementById('taskLink').value = ''; 
                 setDefaultDateTime();
                 loadActiveTasks();
             });
@@ -35,14 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('openHistory').addEventListener('click', () => chrome.tabs.create({url: 'history.html'}));
-    document.getElementById('manageClientsBtn').addEventListener('click', () => chrome.tabs.create({url: 'clients.html'}));
+    document.getElementById('manageSubjectsBtn').addEventListener('click', () => chrome.tabs.create({url: 'materias.html'}));
 });
 
-function loadClientsInSelect() {
-    chrome.storage.local.get({clients: []}, (data) => {
-        const select = document.getElementById('taskClient');
-        select.innerHTML = '<option value="">Nenhum cliente (Opcional)</option>'; 
-        data.clients.forEach(c => {
+function loadSubjectsInSelect() {
+    chrome.storage.local.get({subjects: []}, (data) => {
+        const select = document.getElementById('taskSubject');
+        select.innerHTML = '<option value="">Nenhuma matéria (Opcional)</option>'; 
+        data.subjects.forEach(c => {
             const opt = document.createElement('option');
             opt.value = c.name;
             opt.textContent = c.name;
@@ -54,13 +57,11 @@ function loadClientsInSelect() {
 function setDefaultDateTime() {
     const now = new Date();
     now.setHours(now.getHours() + 1);
-    
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
-    
     document.getElementById('taskDate').value = `${year}-${month}-${day}`;
     document.getElementById('taskTime').value = `${hours}:${minutes}`;
 }
@@ -73,15 +74,11 @@ function loadActiveTasks() {
 
         tasks = tasks.map(t => {
             if (!t.status) { t.status = 'nova'; needsUpdate = true; } 
-            
             if (!t.completed) {
-                // Nova Regra de Atraso no Popup
                 if (t.dueDate < nowTime) {
                     if (t.status !== 'atrasada') { t.status = 'atrasada'; needsUpdate = true; }
-                } 
-                else if (t.status === 'nova' && (nowTime - t.createdAt >= 500000000)) { 
-                    t.status = 'em_progresso';
-                    needsUpdate = true;
+                } else if (t.status === 'nova' && (nowTime - t.createdAt >= 300000)) { 
+                    t.status = 'em_progresso'; needsUpdate = true;
                 }
             }
             return t;
@@ -96,11 +93,7 @@ function loadActiveTasks() {
         activeTasks.forEach(task => {
             const totalTime = task.dueDate - task.createdAt;
             const elapsedTime = nowTime - task.createdAt;
-            
-            let percent = 0;
-            if (totalTime > 0) percent = (elapsedTime / totalTime) * 100;
-            else percent = 100;
-            
+            let percent = totalTime > 0 ? (elapsedTime / totalTime) * 100 : 100;
             if (percent < 0) percent = 0;
             if (percent > 100) percent = 100;
 
@@ -114,7 +107,7 @@ function loadActiveTasks() {
                     subtasksHTML += `
                         <div class="subtask-item ${isCompleted}" id="subtask-item-${sub.id}">
                             <div class="subtask-item-content">
-                                <input type="checkbox" class="subtask-chk" data-task-id="${task.id}" data-sub-id="${sub.id}" ${isChecked} title="Concluir subtarefa">
+                                <input type="checkbox" class="subtask-chk" data-task-id="${task.id}" data-sub-id="${sub.id}" ${isChecked}>
                                 <span>${sub.description}</span>
                             </div>
                         </div>`;
@@ -126,32 +119,30 @@ function loadActiveTasks() {
             li.className = 'task-item';
             li.id = `task-item-${task.id}`; 
             
-            // Selo do status agora reflete Atrasadas
             let statusText = 'Nova Tarefa';
             let statusClass = 'status-nova';
             if (task.status === 'em_progresso') { statusText = 'Em Progresso'; statusClass = 'status-progresso'; }
             if (task.status === 'atrasada') { statusText = 'Em Atraso'; statusClass = 'status-atrasada'; }
 
             const statusBadge = `<div class="status-badge ${statusClass}">${task.status === 'atrasada' ? '🚨' : '⚡'} ${statusText}</div>`;
-            const clientBadge = task.client ? `<div class="client-badge">🏢 Cliente: ${task.client}</div>` : '';
-            const badgesContainer = `<div class="badges-container">${statusBadge}${clientBadge}</div>`;
+            const subjectBadge = task.subject ? `<div class="subject-badge">📚 Matéria: ${task.subject}</div>` : '';
+            // Renderiza o badge de link
+            const linkBadge = task.link ? `<a href="${task.link}" target="_blank" class="link-badge" title="${task.link}">🔗 Link</a>` : '';
 
             li.innerHTML = `
-                ${badgesContainer}
+                <div class="badges-container">${statusBadge}${subjectBadge}${linkBadge}</div>
                 <div class="task-header">
                     <div class="task-title-area">
                         <span>${task.description}</span>
-                        <button class="btn-add-subtask" data-id="${task.id}" title="Adicionar subtarefa">+</button>
+                        <button class="btn-add-subtask" data-id="${task.id}">+</button>
                     </div>
-                    <input type="checkbox" class="complete-chk" data-id="${task.id}" title="Concluir tarefa principal">
+                    <input type="checkbox" class="complete-chk" data-id="${task.id}">
                 </div>
                 <small>Entrega: ${new Date(task.dueDate).toLocaleString()}</small>
-                <div class="progress-container">
-                    <div class="progress-bar" style="width: ${percent}%"></div>
-                </div>
+                <div class="progress-container"><div class="progress-bar" style="width: ${percent}%"></div></div>
                 ${subtasksHTML}
                 <div class="subtask-input-area" id="input-area-${task.id}">
-                    <input type="text" id="subtask-input-${task.id}" placeholder="Nova subtarefa (máx 10)...">
+                    <input type="text" id="subtask-input-${task.id}" placeholder="Nova subtarefa...">
                     <button class="btn-save-subtask" data-id="${task.id}">Salvar</button>
                 </div>
             `;
@@ -161,9 +152,8 @@ function loadActiveTasks() {
         document.querySelectorAll('.complete-chk').forEach(chk => {
             chk.addEventListener('change', (e) => {
                 const id = e.target.getAttribute('data-id');
-                const taskElement = document.getElementById(`task-item-${id}`);
                 e.target.disabled = true;
-                taskElement.classList.add('completing');
+                document.getElementById(`task-item-${id}`).classList.add('completing');
                 setTimeout(() => toggleTaskStatus(id, true), 600); 
             });
         });
@@ -173,11 +163,8 @@ function loadActiveTasks() {
                 const taskId = e.target.getAttribute('data-task-id');
                 const subId = e.target.getAttribute('data-sub-id');
                 const isChecked = e.target.checked;
-                
                 const itemDiv = document.getElementById(`subtask-item-${subId}`);
-                if (isChecked) itemDiv.classList.add('completed');
-                else itemDiv.classList.remove('completed');
-                
+                isChecked ? itemDiv.classList.add('completed') : itemDiv.classList.remove('completed');
                 toggleSubtaskStatus(taskId, subId, isChecked);
             });
         });
@@ -186,9 +173,8 @@ function loadActiveTasks() {
             btn.addEventListener('click', (e) => {
                 const taskId = e.target.getAttribute('data-id');
                 const task = data.tasks.find(t => t.id === taskId);
-                if (task.subtasks && task.subtasks.length >= 10) return alert("Esta tarefa já atingiu o limite de 10 subtarefas.");
-                const inputArea = document.getElementById(`input-area-${taskId}`);
-                inputArea.classList.toggle('active'); 
+                if (task.subtasks && task.subtasks.length >= 10) return alert("Limite de 10 subtarefas.");
+                document.getElementById(`input-area-${taskId}`).classList.toggle('active'); 
                 document.getElementById(`subtask-input-${taskId}`).focus();
             });
         });
@@ -210,7 +196,6 @@ function addSubtask(taskId, description) {
                 if (!t.subtasks) t.subtasks = [];
                 if (t.subtasks.length < 10) {
                     t.subtasks.push({ id: Date.now().toString(), description: description, completed: false });
-                    // Só altera para em progresso se não estiver atrasada
                     if (t.status === 'nova') t.status = 'em_progresso'; 
                 }
             }
@@ -224,10 +209,7 @@ function toggleSubtaskStatus(taskId, subId, status) {
     chrome.storage.local.get({tasks: []}, (data) => {
         const tasks = data.tasks.map(t => {
             if (t.id === taskId && t.subtasks) {
-                t.subtasks = t.subtasks.map(s => {
-                    if (s.id === subId) s.completed = status;
-                    return s;
-                });
+                t.subtasks = t.subtasks.map(s => { if (s.id === subId) s.completed = status; return s; });
             }
             return t;
         });
@@ -240,10 +222,7 @@ function toggleTaskStatus(id, status) {
         const tasks = data.tasks.map(t => {
             if (t.id === id) {
                 t.completed = status;
-                if (status) {
-                    t.status = 'concluida';
-                    if (t.subtasks) t.subtasks = t.subtasks.map(s => ({ ...s, completed: true }));
-                }
+                if (status) { t.status = 'concluida'; if (t.subtasks) t.subtasks = t.subtasks.map(s => ({ ...s, completed: true })); }
             }
             return t;
         });
