@@ -142,3 +142,80 @@ button:hover { background-color: #1557b0; box-shadow: 0 2px 6px rgba(26, 115, 23
     100% { transform: scale(0); opacity: 0; filter: blur(3px); }
 }
 .task-item.black-hole { animation: blackHoleImplode 0.5s linear forwards; pointer-events: none; box-shadow: 0 0 15px rgba(234, 67, 53, 0.4); border-color: #ea4335; }
+
+
+/* ======== BOTÃO DE TEMA (MODO DARK/LIGHT) ======== */
+.theme-btn { background: transparent; border: 1px solid #dadce0; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 50%; transition: background 0.2s, transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.theme-btn:hover { background: #f8f9fa; transform: scale(1.05); }
+.theme-btn img { width: 22px; height: 22px; transition: all 0.3s ease; }
+
+/* ======== MODO ESCURO (DARK MODE) ======== */
+body.dark-mode { background-color: #121212; color: #e8eaed; }
+
+/* Paineis e Cards no Modo Escuro */
+body.dark-mode .history-toolbar, body.dark-mode .dropdown-menu, body.dark-mode .modal-content, 
+body.dark-mode .task-item, body.dark-mode .subject-item, body.dark-mode .add-subject-box {
+    background-color: #1e1e1e; border-color: #3c4043; color: #e8eaed; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+/* Colunas do Kanban */
+body.dark-mode .kanban-column { background-color: #202124; box-shadow: none; }
+body.dark-mode .kanban-column h3 { color: #e8eaed; border-bottom-color: #3c4043; }
+
+/* Textos e Inputs */
+body.dark-mode h2, body.dark-mode h3, body.dark-mode .modal-content h3 { color: #8ab4f8; }
+body.dark-mode input, body.dark-mode select { background-color: #202124; color: #e8eaed; border-color: #5f6368; }
+body.dark-mode input:focus, body.dark-mode select:focus { border-color: #8ab4f8; box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.15); }
+body.dark-mode .subtask-item { color: #bdc1c6; }
+body.dark-mode .subtask-item::before { border-color: #5f6368; }
+body.dark-mode .subtasks-container { border-left-color: #5f6368; }
+
+/* Botões no Modo Escuro */
+body.dark-mode .theme-btn { border-color: #3c4043; background: #202124; }
+body.dark-mode .theme-btn:hover { background: #3c4043; }
+body.dark-mode .hamburger-btn { background-color: #1e1e1e; color: #e8eaed; border-color: #3c4043; }
+body.dark-mode .hamburger-btn:hover { background-color: #202124; color: #8ab4f8; }
+body.dark-mode .dropdown-menu a { color: #e8eaed; border-bottom-color: #3c4043; }
+body.dark-mode .dropdown-menu a:hover { background-color: #3c4043; color: #8ab4f8; }
+body.dark-mode .btn-chip { background: #3c4043; color: #e8eaed; }
+body.dark-mode .btn-chip:hover { background: #5f6368; }
+
+/* Elementos Visuais e Progresso */
+body.dark-mode .progress-container { background-color: #3c4043; }
+body.dark-mode .link-badge { background-color: #202124; color: #8ab4f8; border: 1px solid #3c4043; }
+body.dark-mode .link-badge:hover { background-color: #3c4043; }
+body.dark-mode .client-item strong, body.dark-mode .subject-item strong { color: #e8eaed; }
+
+/* ======== DRAG AND DROP (ARRASTAR TAREFAS) ======== */
+.task-item[draggable="true"] { cursor: grab; }
+.task-item[draggable="true"]:active { cursor: grabbing; }
+
+/* Efeito visual na tarefa que está sendo segurada */
+.task-item.dragging { 
+    opacity: 0.5; 
+    transform: scale(0.95); 
+    box-shadow: 0 0 15px rgba(26, 115, 232, 0.4); 
+    border: 2px dashed #1a73e8; 
+    z-index: 1000; 
+}
+
+/* Área de Drop (Colunas) */
+.kanban-tasks { 
+    min-height: 150px; /* Garante espaço para soltar mesmo se a coluna estiver vazia */
+    padding-bottom: 20px; 
+    transition: background-color 0.2s ease, border 0.2s ease; 
+    border-radius: 8px; 
+    border: 2px solid transparent; 
+}
+
+/* Efeito quando uma tarefa paira sobre a coluna */
+.kanban-tasks.drag-over { 
+    background-color: rgba(26, 115, 232, 0.05); 
+    border-color: #8ab4f8; 
+    border-style: dashed; 
+}
+
+body.dark-mode .kanban-tasks.drag-over { 
+    background-color: rgba(138, 180, 248, 0.05); 
+    border-color: #8ab4f8; 
+}

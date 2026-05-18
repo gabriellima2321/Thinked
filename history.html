@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" href="static/style.css">
   <style>
-    body { max-width: 1400px; width: 95%; margin: 30px auto; background-color: #f0f4f8; }
+    body { max-width: 1400px; width: 95%; margin: 30px auto; background-color: #f0f4f8; transition: background-color 0.3s ease; }
     h2 { font-size: 24px; margin-bottom: 20px; }
     .edit-subtask-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
   </style>
@@ -13,15 +13,24 @@
   <h2>📚 Histórico de Tarefas (Quadro)</h2>
   
   <div class="history-toolbar">
-    <div class="menu-container">
-      <button id="menuBtn" class="hamburger-btn"><span style="font-size: 18px;">☰</span> MENU</button>
-      <div id="dropdownMenu" class="dropdown-menu">
-        <a href="#" id="menuExport">📤 Exportar JSON</a>
-        <a href="#" id="menuImport">📥 Importar JSON</a>
-        <a href="materias.html">🏢 Gerenciar Matérias</a>
-        <a href="#" id="menuDeleteAll" style="color: #d93025; font-weight: 700; border-top: 2px solid #fce8e6; background-color: #fce8e6;">🗑️ Excluir Todas as Tarefas</a>
+    <!-- NOVO: Container agrupando o Menu e o Botão de Tema -->
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <div class="menu-container">
+        <button id="menuBtn" class="hamburger-btn"><span style="font-size: 18px;">☰</span> MENU</button>
+        <div id="dropdownMenu" class="dropdown-menu">
+          <a href="#" id="menuExport">📤 Exportar JSON</a>
+          <a href="#" id="menuImport">📥 Importar JSON</a>
+          <a href="materias.html">🏢 Gerenciar Matérias</a>
+          <a href="#" id="menuDeleteAll" style="color: #d93025; font-weight: 700; border-top: 2px solid #fce8e6; background-color: #fce8e6;">🗑️ Excluir Todas as Tarefas</a>
+        </div>
       </div>
+      
+      <!-- Botão de trocar tema Dark/Light -->
+      <button id="themeToggle" class="theme-btn" title="Mudar Tema">
+        <img src="icons/full-moon.png" alt="Modo Escuro" id="themeIcon">
+      </button>
     </div>
+
     <div class="filters-container">
       <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar por tarefa ou matéria...">
       <select id="statusFilter" class="filter-select">
