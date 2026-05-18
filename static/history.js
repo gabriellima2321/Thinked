@@ -1,6 +1,67 @@
 let currentEditingTaskId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // ======== LÓGICA DO TEMA (DARK/LIGHT MODE) ========
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+
+    chrome.storage.local.get({ theme: 'light' }, (data) => {
+        if (data.theme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeIcon.src = 'icons/sun.png';
+        } else {
+            themeIcon.src = 'icons/full-moon.png';
+        }
+    });
+
+    themeToggle.addEventListener('click', () => {
+        const isDark = document.body.classList.toggle('dark-mode');
+        const newTheme = isDark ? 'dark' : 'light';
+        themeIcon.src = isDark ? 'icons/sun.png' : 'icons/full-moon.png';
+        chrome.storage.local.set({ theme: newTheme });
+    });
+    // ===================================================
+
+    // ======== LÓGICA DE DROP (ARRASTAR PARA AS COLUNAS) ========
+    document.querySelectorAll('.kanban-tasks').forEach(col => {
+        col.addEventListener('dragover', (e) => {
+            e.preventDefault(); 
+            col.classList.add('drag-over');
+        });
+
+        col.addEventListener('dragleave', (e) => {
+            if (!col.contains(e.relatedTarget)) {
+                col.classList.remove('drag-over');
+            }
+        });
+
+        col.addEventListener('drop', (e) => {
+            e.preventDefault();
+            col.classList.remove('drag-over');
+            const taskId = e.dataTransfer.getData('text/plain');
+            const targetStatus = col.id.replace('list-', ''); 
+            
+            if (taskId && targetStatus) {
+                const card = document.getElementById(`task-hist-${taskId}`);
+                
+                // Só anima se estiver soltando em uma coluna diferente
+                if (card && card.parentElement.id !== `list-${targetStatus}`) {
+                    
+                    // TRANSIÇÃO SUAVE: Faz o card "encolher" na coluna original
+                    card.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 1, 1)';
+                    card.style.transform = 'scale(0.5)';
+                    card.style.opacity = '0';
+                    
+                    // Aguarda 200ms para a animação terminar e move os dados
+                    setTimeout(() => {
+                        updateTaskStatusFromDrag(taskId, targetStatus);
+                    }, 200);
+                }
+            }
+        });
+    });
+    // ==========================================================
+
     loadAllTasks();
     loadSubjectsInEditModal();
 
@@ -46,17 +107,15 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsText(file);
     });
 
-    // NOVO: Excluir todas as tarefas
     document.getElementById('menuDeleteAll').addEventListener('click', (e) => {
         e.preventDefault();
         const dropdown = document.getElementById('dropdownMenu');
         if (dropdown) dropdown.classList.remove('show');
 
-        // Dupla confirmação para evitar acidentes
         if(confirm("⚠️ ATENÇÃO: Tem certeza ABSOLUTA que deseja EXCLUIR TODAS as tarefas? Isso não pode ser desfeito!")) {
             chrome.storage.local.set({tasks: []}, () => {
                 alert("Todas as tarefas foram excluídas com sucesso.");
-                loadAllTasks(); // Recarrega o quadro vazio
+                loadAllTasks(); 
             });
         }
     });
@@ -66,6 +125,40 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cancelEditBtn').addEventListener('click', closeModal);
     document.getElementById('saveEditBtn').addEventListener('click', saveEditedTask);
 });
+
+// Lida com as regras de movimento entre colunas
+function updateTaskStatusFromDrag(taskId, newStatus) {
+    chrome.storage.local.get({tasks: []}, (data) => {
+        const tasks = data.tasks.map(t => {
+            if (t.id === taskId) {
+                const oldStatus = t.status;
+                t.status = newStatus;
+
+                if (newStatus === 'concluida') {
+                    t.completed = true;
+                    if (t.subtasks) t.subtasks = t.subtasks.map(s => ({ ...s, completed: true }));
+                } else {
+                    t.completed = false; 
+                    
+                    // REGRA 1: Se for para Progresso e estiver atrasada, ganha +1 hora.
+                    if (newStatus === 'em_progresso' && (oldStatus === 'atrasada' || t.dueDate < Date.now())) {
+                        t.dueDate = Date.now() + 3600000; 
+                    }
+                    
+                    // REGRA 2: Se for arrastada para "Nova Tarefa", aceita incondicionalmente
+                    if (newStatus === 'nova') {
+                        t.createdAt = Date.now(); 
+                        if (t.dueDate < Date.now()) {
+                            t.dueDate = Date.now() + 3600000; 
+                        }
+                    }
+                }
+            }
+            return t;
+        });
+        chrome.storage.local.set({tasks}, loadAllTasks);
+    });
+}
 
 function loadSubjectsInEditModal() {
     chrome.storage.local.get({subjects: []}, (data) => {
@@ -137,6 +230,16 @@ function loadAllTasks() {
             const li = document.createElement('li');
             li.className = 'task-item';
             li.id = `task-hist-${task.id}`; 
+            
+            li.setAttribute('draggable', 'true');
+            li.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', task.id);
+                setTimeout(() => li.classList.add('dragging'), 0);
+            });
+            li.addEventListener('dragend', () => {
+                li.classList.remove('dragging');
+            });
+
             li.innerHTML = `
                 <div class="badges-container">${statusBadge}${subjectBadge}${linkBadge}</div>
                 <div class="task-header"><strong style="${task.completed ? 'text-decoration: line-through; color: #9aa0a6;' : ''}; font-size: 14px;">${task.description}</strong></div>
@@ -195,7 +298,7 @@ function openEditModal(id) {
 
         document.getElementById('editTaskDesc').value = task.description;
         document.getElementById('editTaskSubject').value = task.subject || "";
-        document.getElementById('editTaskLink').value = task.link || ""; // Carrega o link atual na edição
+        document.getElementById('editTaskLink').value = task.link || ""; 
 
         const d = new Date(task.dueDate);
         document.getElementById('editTaskDate').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -238,7 +341,7 @@ function saveEditedTask() {
             if (t.id === currentEditingTaskId) {
                 t.description = newDesc; 
                 t.subject = newSubject; 
-                t.link = newLink; // Salva a alteração do link
+                t.link = newLink; 
                 t.dueDate = new Date(`${newDate}T${newTime}`).getTime();
                 if (t.status === 'atrasada' && t.dueDate >= Date.now()) t.status = 'em_progresso';
                 document.querySelectorAll('.edit-sub-input').forEach(input => {
