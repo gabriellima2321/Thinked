@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="./static/style.css">
+  <style>
+    body { width: 600px; margin: 40px auto; }
+    h2 { font-size: 24px; margin-bottom: 25px; color: #9c27b0; }
+    .client-header { display: flex; justify-content: space-between; align-items: center; }
+  </style>
+</head>
+<body>
+  <div class="client-header">
+    <h2>🏢 Gerenciamento de Clientes</h2>
+  </div>
+  
+  <div class="add-client-box input-group">
+    <label for="clientName" style="font-weight: 600; color: #5f6368;">Novo Cliente:</label>
+    <div style="display: flex; gap: 10px;">
+        <input type="text" id="clientName" placeholder="Digite o nome da empresa ou cliente..." style="flex: 1;">
+        <button id="addClientBtn" style="background: linear-gradient(45deg, #9c27b0, #7b1fa2);">Adicionar Cliente</button>
+    </div>
+  </div>
+
+  <h3>Clientes Cadastrados</h3>
+  <ul id="clientsList" class="task-list"></ul>
+  
+  <script src="./static/clients.js"></script>
+</body>
+</html>

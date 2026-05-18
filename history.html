@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="./static/style.css">
+  <style>
+    body { max-width: 1400px; width: 95%; margin: 30px auto; background-color: #f0f4f8; }
+    h2 { font-size: 24px; margin-bottom: 20px; }
+    .edit-subtask-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+  </style>
+</head>
+<body>
+  <h2>📚 Histórico de Tarefas (Quadro)</h2>
+  
+  <div class="history-toolbar">
+    <!-- Menu Hambúrguer -->
+    <div class="menu-container">
+      <button id="menuBtn" class="hamburger-btn">
+        <span style="font-size: 18px;">☰</span> MENU
+      </button>
+      <div id="dropdownMenu" class="dropdown-menu">
+        <a href="#" id="menuExport">📤 Exportar JSON</a>
+        <a href="#" id="menuImport">📥 Importar JSON</a>
+        <a href="clients.html">🏢 Gerenciar Clientes</a>
+      </div>
+    </div>
+    
+    <!-- Filtros e Busca -->
+    <div class="filters-container">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar por tarefa ou cliente...">
+      <select id="statusFilter" class="filter-select" title="Filtro no Kanban">
+        <option value="todos">Todos os Status</option>
+        <option value="nova">⚡ Novas</option>
+        <option value="em_progresso">⏳ Em Progresso</option>
+        <option value="concluida">✔ Concluídas</option>
+        <option value="atrasada">🚨 Em Atraso</option>
+      </select>
+    </div>
+  </div>
+
+  <input type="file" id="importFile" accept=".json" style="display:none;">
+
+  <!-- QUADRO KANBAN (SUBSTITUI A LISTA ANTIGA) -->
+  <div class="kanban-board">
+    <div class="kanban-column" id="col-nova">
+      <h3>⚡ Novas Tarefas</h3>
+      <ul class="kanban-tasks" id="list-nova"></ul>
+    </div>
+    
+    <div class="kanban-column" id="col-em_progresso">
+      <h3>⏳ Em Progresso</h3>
+      <ul class="kanban-tasks" id="list-em_progresso"></ul>
+    </div>
+    
+    <div class="kanban-column" id="col-atrasada">
+      <h3>🚨 Em Atraso</h3>
+      <ul class="kanban-tasks" id="list-atrasada"></ul>
+    </div>
+    
+    <div class="kanban-column" id="col-concluida">
+      <h3>✔ Concluídas</h3>
+      <ul class="kanban-tasks" id="list-concluida"></ul>
+    </div>
+  </div>
+  
+  <!-- MODAL DE EDIÇÃO -->
+  <div id="editModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>✏️ Editar Tarefa</h3>
+      <div class="input-group">
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px;">Cliente:</label>
+        <select id="editTaskClient">
+          <option value="">Nenhum cliente (Opcional)</option>
+        </select>
+        
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px; margin-top: 5px;">Data e Hora:</label>
+        <div class="date-time-row">
+          <input type="date" id="editTaskDate">
+          <input type="time" id="editTaskTime">
+        </div>
+        
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px; margin-top: 5px;">Descrição da Tarefa:</label>
+        <input type="text" id="editTaskDesc">
+        
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px; margin-top: 10px;">Subtarefas:</label>
+        <div id="editSubtasksList"></div>
+      </div>
+      
+      <div class="modal-actions">
+        <button id="cancelEditBtn" class="btn-text">Cancelar</button>
+        <button id="saveEditBtn">Salvar Alterações</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./static/history.js"></script>
+</body>
+</html>

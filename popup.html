@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+  <h2>Nova Tarefa</h2>
+  <div class="input-group">
+    <select id="taskClient">
+      <option value="">Nenhum cliente (Opcional)</option>
+    </select>
+    
+    <div class="date-time-row">
+      <input type="date" id="taskDate" title="Data da entrega">
+      <input type="time" id="taskTime" title="Hora da entrega">
+    </div>
+    
+    <input type="text" id="taskDesc" placeholder="Descrição da tarefa principal...">
+    <button id="addTaskBtn">Adicionar Tarefa</button>
+  </div>
+  
+  <ul id="activeTasks" class="task-list"></ul>
+  
+  <!-- Novos botões organizados -->
+  <div class="action-buttons">
+    <a id="openHistory" class="btn-action btn-action-blue">Ver Histórico</a>
+    <a id="manageClientsBtn" class="btn-action btn-action-purple">Clientes</a>
+  </div>
+  
+  <script src="./static/popup.js"></script>
+</body>
+</html>
