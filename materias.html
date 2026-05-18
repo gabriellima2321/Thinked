@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="static/style.css">
+  <style>body { width: 600px; margin: 40px auto; } h2 { font-size: 24px; margin-bottom: 25px; color: #9c27b0; }</style>
+</head>
+<body>
+  <h2>📚 Gerenciamento de Matérias</h2>
+  <div class="add-subject-box input-group">
+    <label style="font-weight: 600; color: #5f6368;">Nova Matéria:</label>
+    <div style="display: flex; gap: 10px;">
+        <input type="text" id="subjectName" placeholder="Digite o nome da matéria..." style="flex: 1;">
+        <button id="addSubjectBtn" style="background: linear-gradient(45deg, #9c27b0, #7b1fa2);">Adicionar Matéria</button>
+    </div>
+  </div>
+  <h3>Matérias Cadastradas</h3>
+  <ul id="subjectsList" class="task-list"></ul>
+  <script src="static/materias.js"></script>
+</body>
+</html>

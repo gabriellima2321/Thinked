@@ -1,23 +1,24 @@
 {
   "manifest_version": 3,
-  "name": "Task Progress Tracker",
-  "version": "1.0",
-  "description": "Gerencie tarefas com barra de progresso até a data de entrega.",
+  "name": "Task Kanban Tracker",
+  "version": "2.0.0",
+  "description": "Gerencie tarefas em um quadro Kanban na barra lateral do navegador.",
+  "permissions": [
+    "storage",
+    "sidePanel"
+  ],
+  "background": {
+    "service_worker": "./static/background.js"
+  },
   "action": {
-    "default_popup": "popup.html",
-    "default_title": "Minhas Tarefas",
-    "default_icon": {
-      "16": "./icons/task.png",
-      "48": "./icons/task.png",
-      "128": "./icons/task.png"
-    }
+    "default_title": "Abrir Minhas Tarefas"
+  },
+  "side_panel": {
+    "default_path": "popup.html"
   },
   "icons": {
     "16": "./icons/task.png",
     "48": "./icons/task.png",
     "128": "./icons/task.png"
-  },
-  "permissions": [
-    "storage"
-  ]
+  }
 }
