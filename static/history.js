@@ -44,15 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (taskId && targetStatus) {
                 const card = document.getElementById(`task-hist-${taskId}`);
                 
-                // Só anima se estiver soltando em uma coluna diferente
                 if (card && card.parentElement.id !== `list-${targetStatus}`) {
-                    
-                    // TRANSIÇÃO SUAVE: Faz o card "encolher" na coluna original
                     card.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 1, 1)';
                     card.style.transform = 'scale(0.5)';
                     card.style.opacity = '0';
                     
-                    // Aguarda 200ms para a animação terminar e move os dados
                     setTimeout(() => {
                         updateTaskStatusFromDrag(taskId, targetStatus);
                     }, 200);
@@ -126,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('saveEditBtn').addEventListener('click', saveEditedTask);
 });
 
-// Lida com as regras de movimento entre colunas
 function updateTaskStatusFromDrag(taskId, newStatus) {
     chrome.storage.local.get({tasks: []}, (data) => {
         const tasks = data.tasks.map(t => {
@@ -140,12 +135,10 @@ function updateTaskStatusFromDrag(taskId, newStatus) {
                 } else {
                     t.completed = false; 
                     
-                    // REGRA 1: Se for para Progresso e estiver atrasada, ganha +1 hora.
                     if (newStatus === 'em_progresso' && (oldStatus === 'atrasada' || t.dueDate < Date.now())) {
                         t.dueDate = Date.now() + 3600000; 
                     }
                     
-                    // REGRA 2: Se for arrastada para "Nova Tarefa", aceita incondicionalmente
                     if (newStatus === 'nova') {
                         t.createdAt = Date.now(); 
                         if (t.dueDate < Date.now()) {
@@ -200,7 +193,9 @@ function loadAllTasks() {
         const statusFilter = document.getElementById('statusFilter').value;
 
         const filteredTasks = tasks.filter(task => {
-            const matchText = task.description.toLowerCase().includes(searchQuery) || (task.subject && task.subject.toLowerCase().includes(searchQuery));
+            const matchText = (task.title && task.title.toLowerCase().includes(searchQuery)) || 
+                              (task.description && task.description.toLowerCase().includes(searchQuery)) || 
+                              (task.subject && task.subject.toLowerCase().includes(searchQuery));
             const matchStatus = statusFilter === 'todos' || task.status === statusFilter;
             return matchText && matchStatus;
         });
@@ -228,7 +223,7 @@ function loadAllTasks() {
             const linkBadge = task.link ? `<a href="${task.link}" target="_blank" class="link-badge" title="${task.link}">🔗 Link</a>` : '';
 
             const li = document.createElement('li');
-            li.className = 'task-item';
+            li.className = `task-item task-card-${task.status}`;
             li.id = `task-hist-${task.id}`; 
             
             li.setAttribute('draggable', 'true');
@@ -242,7 +237,10 @@ function loadAllTasks() {
 
             li.innerHTML = `
                 <div class="badges-container">${statusBadge}${subjectBadge}${linkBadge}</div>
-                <div class="task-header"><strong style="${task.completed ? 'text-decoration: line-through; color: #9aa0a6;' : ''}; font-size: 14px;">${task.description}</strong></div>
+                <div class="task-header" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+                    <strong style="${task.completed ? 'text-decoration: line-through; color: #9aa0a6;' : ''}; font-size: 15px;">${task.title || 'Sem Título'}</strong>
+                    ${task.description ? `<span style="font-size: 13px; color: #5f6368; font-weight: normal; ${task.completed ? 'text-decoration: line-through; color: #9aa0a6;' : ''}">${task.description}</span>` : ''}
+                </div>
                 <small style="color: #80868b; margin-top: 4px;">Entrega: ${new Date(task.dueDate).toLocaleString()}</small>
                 ${subtasksHTML}
                 <div class="controls">
@@ -296,7 +294,8 @@ function openEditModal(id) {
         if(!task) return;
         currentEditingTaskId = id;
 
-        document.getElementById('editTaskDesc').value = task.description;
+        document.getElementById('editTaskTitle').value = task.title || ""; // Carrega o título
+        document.getElementById('editTaskDesc').value = task.description || ""; // Carrega a descrição
         document.getElementById('editTaskSubject').value = task.subject || "";
         document.getElementById('editTaskLink').value = task.link || ""; 
 
@@ -328,18 +327,20 @@ function closeModal() {
 
 function saveEditedTask() {
     if(!currentEditingTaskId) return;
+    const newTitle = document.getElementById('editTaskTitle').value.trim();
     const newDesc = document.getElementById('editTaskDesc').value.trim();
     const newSubject = document.getElementById('editTaskSubject').value;
     const newLink = document.getElementById('editTaskLink').value.trim();
     const newDate = document.getElementById('editTaskDate').value;
     const newTime = document.getElementById('editTaskTime').value;
 
-    if (!newDesc || !newDate || !newTime) return alert("Preencha descrição, data e hora!");
+    if (!newTitle || !newDate || !newTime) return alert("Preencha título, data e hora!");
 
     chrome.storage.local.get({tasks: []}, (data) => {
         const tasks = data.tasks.map(t => {
             if (t.id === currentEditingTaskId) {
-                t.description = newDesc; 
+                t.title = newTitle; // Salva o novo título
+                t.description = newDesc; // Salva a nova descrição
                 t.subject = newSubject; 
                 t.link = newLink; 
                 t.dueDate = new Date(`${newDate}T${newTime}`).getTime();

@@ -13,7 +13,6 @@
   <h2>📚 Histórico de Tarefas (Quadro)</h2>
   
   <div class="history-toolbar">
-    <!-- NOVO: Container agrupando o Menu e o Botão de Tema -->
     <div style="display: flex; gap: 10px; align-items: center;">
       <div class="menu-container">
         <button id="menuBtn" class="hamburger-btn"><span style="font-size: 18px;">☰</span> MENU</button>
@@ -25,7 +24,6 @@
         </div>
       </div>
       
-      <!-- Botão de trocar tema Dark/Light -->
       <button id="themeToggle" class="theme-btn" title="Mudar Tema">
         <img src="icons/full-moon.png" alt="Modo Escuro" id="themeIcon">
       </button>
@@ -63,6 +61,9 @@
         <div class="date-time-row">
           <input type="date" id="editTaskDate"><input type="time" id="editTaskTime">
         </div>
+        
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px; margin-top: 5px;">Título:</label>
+        <input type="text" id="editTaskTitle">
         
         <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px; margin-top: 5px;">Descrição:</label>
         <input type="text" id="editTaskDesc">

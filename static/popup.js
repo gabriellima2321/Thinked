@@ -4,19 +4,21 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSubjectsInSelect(); 
 
     document.getElementById('addTaskBtn').addEventListener('click', () => {
-        const desc = document.getElementById('taskDesc').value;
+        const titleVal = document.getElementById('taskTitle').value.trim();
+        const descVal = document.getElementById('taskDesc').value.trim();
         const dateVal = document.getElementById('taskDate').value;
         const timeVal = document.getElementById('taskTime').value;
         const subjectVal = document.getElementById('taskSubject').value; 
         const linkVal = document.getElementById('taskLink').value.trim(); 
         
-        if (!desc || !dateVal || !timeVal) return alert("Preencha descrição, data e hora!");
+        if (!titleVal || !dateVal || !timeVal) return alert("Preencha o título, data e hora!");
 
         const newTask = {
             id: Date.now().toString(),
-            description: desc,
+            title: titleVal, // Salva o título
+            description: descVal, // Salva a descrição
             subject: subjectVal, 
-            link: linkVal, // Salva o link
+            link: linkVal, 
             createdAt: new Date().getTime(),
             dueDate: new Date(`${dateVal}T${timeVal}`).getTime(),
             completed: false,
@@ -28,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tasks = data.tasks;
             tasks.push(newTask);
             chrome.storage.local.set({tasks}, () => {
+                document.getElementById('taskTitle').value = '';
                 document.getElementById('taskDesc').value = '';
                 document.getElementById('taskSubject').value = ''; 
                 document.getElementById('taskLink').value = ''; 
@@ -126,15 +129,17 @@ function loadActiveTasks() {
 
             const statusBadge = `<div class="status-badge ${statusClass}">${task.status === 'atrasada' ? '🚨' : '⚡'} ${statusText}</div>`;
             const subjectBadge = task.subject ? `<div class="subject-badge">📚 Matéria: ${task.subject}</div>` : '';
-            // Renderiza o badge de link
             const linkBadge = task.link ? `<a href="${task.link}" target="_blank" class="link-badge" title="${task.link}">🔗 Link</a>` : '';
 
             li.innerHTML = `
                 <div class="badges-container">${statusBadge}${subjectBadge}${linkBadge}</div>
                 <div class="task-header">
-                    <div class="task-title-area">
-                        <span>${task.description}</span>
-                        <button class="btn-add-subtask" data-id="${task.id}">+</button>
+                    <div class="task-title-area" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px; flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+                            <span style="font-weight: 600; font-size: 15px;">${task.title || 'Sem Título'}</span>
+                            <button class="btn-add-subtask" data-id="${task.id}">+</button>
+                        </div>
+                        ${task.description ? `<span style="font-size: 13px; color: #5f6368; font-weight: normal;">${task.description}</span>` : ''}
                     </div>
                     <input type="checkbox" class="complete-chk" data-id="${task.id}">
                 </div>

@@ -1,5 +1,5 @@
 /* ======== ESTILO GLOBAL ======== */
-body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 15px; background-color: #f0f4f8; color: #202124; box-sizing: border-box; width: 100%; }
+body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 15px; background-color: #f0f4f8; color: #202124; box-sizing: border-box; width: 100%; transition: background-color 0.3s ease; }
 h2 { margin-top: 0; font-size: 20px; color: #1a73e8; font-weight: 600; display: flex; align-items: center; gap: 8px; }
 h3 { color: #5f6368; font-weight: 500; font-size: 16px; margin-bottom: 12px; }
 
@@ -17,10 +17,11 @@ button:hover { background-color: #1557b0; box-shadow: 0 2px 6px rgba(26, 115, 23
 /* ======== TAREFAS E CARTÕES ======== */
 .task-list { list-style-type: none; padding: 0; margin: 0; }
 
+/* Reduzido o padding, border-radius e margin para deixar os cards mais compactos */
 .task-item, .subject-item, .add-subject-box { 
-    background: white; padding: 14px; border-radius: 12px; margin-bottom: 12px; 
-    border: 1px solid #e8eaed; display: flex; flex-direction: column; gap: 6px; 
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+    background: white; padding: 10px 12px; border-radius: 10px; margin-bottom: 8px; 
+    border: 1px solid #e8eaed; display: flex; flex-direction: column; gap: 4px; 
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s, border-color 0.3s; 
 }
 .task-item:hover, .subject-item:hover, .add-subject-box:hover { 
     transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); border-color: #d2e3fc; 
@@ -35,8 +36,9 @@ button:hover { background-color: #1557b0; box-shadow: 0 2px 6px rgba(26, 115, 23
 .progress-container { width: 100%; background-color: #f1f3f4; border-radius: 6px; overflow: hidden; height: 8px; margin-top: 5px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); }
 .progress-bar { height: 100%; background: linear-gradient(90deg, #4285f4, #9c27b0, #ea4335); width: 0%; transition: width 0.4s ease-in-out; border-radius: 6px; }
 
-.controls { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-.btn-chip { background: #f1f3f4; color: #3c4043; border-radius: 16px; padding: 6px 14px; font-weight: 600; font-size: 12px; border: none; transition: all 0.2s ease; cursor: pointer; }
+/* Botões de controle menores e mais unidos */
+.controls { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.btn-chip { background: #f1f3f4; color: #3c4043; border-radius: 16px; padding: 4px 10px; font-weight: 600; font-size: 11px; border: none; transition: all 0.2s ease; cursor: pointer; }
 .btn-chip:hover { background: #e8eaed; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transform: translateY(-1px); }
 .btn-chip.primary { color: white; background: #34a853; }
 .btn-chip.primary:hover { background: #288c42; box-shadow: 0 2px 6px rgba(52, 168, 83, 0.4); }
@@ -66,16 +68,17 @@ button:hover { background-color: #1557b0; box-shadow: 0 2px 6px rgba(26, 115, 23
 .modal-actions .btn-text:hover { background: #f1f3f4; }
 
 /* ======== SELOS (BADGES) ======== */
-.badges-container { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-.subject-badge { display: inline-block; background: linear-gradient(45deg, #9c27b0, #ea4335); color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(156, 39, 176, 0.3); margin-bottom: 0; }
-.status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+/* Selos (Tags) menores para economizar espaço */
+.badges-container { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
+.subject-badge { display: inline-block; background: linear-gradient(45deg, #9c27b0, #ea4335); color: white; padding: 2px 8px; border-radius: 8px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(156, 39, 176, 0.3); margin-bottom: 0; }
+.status-badge { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 .status-nova { background-color: #e3f2fd; color: #1976d2; }
 .status-progresso { background-color: #fff3e0; color: #f57c00; }
 .status-concluida { background-color: #e6f4ea; color: #1e8e3e; }
 .status-atrasada { background-color: #fce8e6; color: #d93025; }
 
 /* Link Badge */
-.link-badge { display: inline-flex; align-items: center; background-color: #e8f0fe; color: #1a73e8; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: background-color 0.2s; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 0; }
+.link-badge { display: inline-flex; align-items: center; background-color: #e8f0fe; color: #1a73e8; padding: 2px 8px; border-radius: 8px; font-size: 9px; font-weight: 700; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: background-color 0.2s; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 0; }
 .link-badge:hover { background-color: #d2e3fc; }
 
 /* ======== MATÉRIAS E POPUP ======== */
@@ -89,26 +92,27 @@ button:hover { background-color: #1557b0; box-shadow: 0 2px 6px rgba(26, 115, 23
 .btn-action-purple:hover { background-color: #e1bee7; transform: translateY(-3px); box-shadow: 0 4px 10px rgba(156, 39, 176, 0.2); }
 
 /* ======== QUADRO KANBAN (HISTÓRICO) ======== */
-.kanban-board { display: flex; gap: 20px; align-items: flex-start; overflow-x: auto; padding-bottom: 20px; min-height: 60vh; }
-.kanban-column { background-color: #f1f3f4; border-radius: 12px; padding: 15px; flex: 1; min-width: 280px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; }
-.kanban-column h3 { margin-top: 0; padding-bottom: 12px; border-bottom: 3px solid #dadce0; color: #3c4043; font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.kanban-board { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; padding-bottom: 20px; min-height: 60vh; }
+.kanban-column { background-color: #f1f3f4; border-radius: 12px; padding: 15px; flex: 1 1 22%; min-width: 250px; box-sizing: border-box; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; transition: background-color 0.3s; }
+.kanban-column h3 { margin-top: 0; padding-bottom: 12px; border-bottom: 3px solid #dadce0; color: #3c4043; font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.3s, border-color 0.3s; }
 
 #col-nova h3 { border-bottom-color: #4285f4; }
 #col-em_progresso h3 { border-bottom-color: #fbbc04; }
 #col-atrasada h3 { border-bottom-color: #ea4335; }
 #col-concluida h3 { border-bottom-color: #34a853; }
 
-.kanban-tasks { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 50px; }
+.kanban-tasks { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 150px; padding-bottom: 20px; transition: background-color 0.2s ease, border 0.2s ease; border-radius: 8px; border: 2px solid transparent; }
+.kanban-tasks.drag-over { background-color: rgba(26, 115, 232, 0.05); border-color: #8ab4f8; border-style: dashed; }
 
 /* ======== TOOLBAR E MENU ======== */
-.history-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; background: white; padding: 12px 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border: 1px solid #dadce0; }
+.history-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; background: white; padding: 12px 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border: 1px solid #dadce0; transition: background-color 0.3s, border-color 0.3s; }
 .menu-container { position: relative; }
-.hamburger-btn { display: flex; align-items: center; gap: 8px; background: white; color: #3c4043; border: 1px solid #dadce0; font-weight: 600; font-size: 14px; padding: 10px 15px; }
+.hamburger-btn { display: flex; align-items: center; gap: 8px; background: white; color: #3c4043; border: 1px solid #dadce0; font-weight: 600; font-size: 14px; padding: 10px 15px; transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
 .hamburger-btn:hover { background: #f8f9fa; color: #1a73e8; box-shadow: none; transform: none; }
 
-.dropdown-menu { display: none; position: absolute; top: 110%; left: 0; background-color: white; min-width: 220px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; z-index: 1000; overflow: hidden; border: 1px solid #dadce0; }
+.dropdown-menu { display: none; position: absolute; top: 110%; left: 0; background-color: white; min-width: 220px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border-radius: 8px; z-index: 1000; overflow: hidden; border: 1px solid #dadce0; transition: background-color 0.3s, border-color 0.3s; }
 .dropdown-menu.show { display: block; animation: fadeInMenu 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-.dropdown-menu a { color: #3c4043; padding: 14px 16px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; transition: background 0.2s; border-bottom: 1px solid #f1f3f4; }
+.dropdown-menu a { color: #3c4043; padding: 14px 16px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; transition: background 0.2s, color 0.3s; border-bottom: 1px solid #f1f3f4; }
 .dropdown-menu a:hover { background-color: #f1f3f4; color: #1a73e8; }
 @keyframes fadeInMenu { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -143,6 +147,18 @@ button:hover { background-color: #1557b0; box-shadow: 0 2px 6px rgba(26, 115, 23
 }
 .task-item.black-hole { animation: blackHoleImplode 0.5s linear forwards; pointer-events: none; box-shadow: 0 0 15px rgba(234, 67, 53, 0.4); border-color: #ea4335; }
 
+/* ======== DRAG AND DROP (ARRASTAR TAREFAS) ======== */
+.task-item[draggable="true"] { cursor: grab; }
+.task-item[draggable="true"]:active { cursor: grabbing; }
+
+/* Efeito visual na tarefa que está sendo segurada */
+.task-item.dragging { 
+    opacity: 0.5; 
+    transform: scale(0.95); 
+    box-shadow: 0 0 15px rgba(26, 115, 232, 0.4); 
+    border: 2px dashed #1a73e8 !important; 
+    z-index: 1000; 
+}
 
 /* ======== BOTÃO DE TEMA (MODO DARK/LIGHT) ======== */
 .theme-btn { background: transparent; border: 1px solid #dadce0; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 50%; transition: background 0.2s, transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -154,7 +170,7 @@ body.dark-mode { background-color: #121212; color: #e8eaed; }
 
 /* Paineis e Cards no Modo Escuro */
 body.dark-mode .history-toolbar, body.dark-mode .dropdown-menu, body.dark-mode .modal-content, 
-body.dark-mode .task-item, body.dark-mode .subject-item, body.dark-mode .add-subject-box {
+body.dark-mode .subject-item, body.dark-mode .add-subject-box {
     background-color: #1e1e1e; border-color: #3c4043; color: #e8eaed; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 
@@ -186,36 +202,56 @@ body.dark-mode .link-badge { background-color: #202124; color: #8ab4f8; border: 
 body.dark-mode .link-badge:hover { background-color: #3c4043; }
 body.dark-mode .client-item strong, body.dark-mode .subject-item strong { color: #e8eaed; }
 
-/* ======== DRAG AND DROP (ARRASTAR TAREFAS) ======== */
-.task-item[draggable="true"] { cursor: grab; }
-.task-item[draggable="true"]:active { cursor: grabbing; }
+body.dark-mode .kanban-tasks.drag-over { background-color: rgba(138, 180, 248, 0.05); border-color: #8ab4f8; }
 
-/* Efeito visual na tarefa que está sendo segurada */
-.task-item.dragging { 
-    opacity: 0.5; 
-    transform: scale(0.95); 
-    box-shadow: 0 0 15px rgba(26, 115, 232, 0.4); 
-    border: 2px dashed #1a73e8; 
-    z-index: 1000; 
+/* ======== CORES DE FUNDO DOS CARDS (STATUS) ======== */
+/* Modo Claro (Tons Pastéis) */
+.task-card-nova { background-color: #f0f6ff !important; border-color: #d2e3fc !important; }
+.task-card-em_progresso { background-color: #fffcf0 !important; border-color: #fce8b2 !important; }
+.task-card-atrasada { background-color: #fef0f0 !important; border-color: #fad2cf !important; }
+.task-card-concluida { background-color: #f0fdf4 !important; border-color: #ceead6 !important; }
+
+/* Modo Escuro (Tons Escuros Translúcidos) */
+body.dark-mode .task-card-nova { background-color: rgba(66, 133, 244, 0.08) !important; border-color: rgba(66, 133, 244, 0.25) !important; color: #e8eaed; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+body.dark-mode .task-card-em_progresso { background-color: rgba(251, 188, 4, 0.08) !important; border-color: rgba(251, 188, 4, 0.25) !important; color: #e8eaed; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+body.dark-mode .task-card-atrasada { background-color: rgba(234, 67, 53, 0.08) !important; border-color: rgba(234, 67, 53, 0.25) !important; color: #e8eaed; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+body.dark-mode .task-card-concluida { background-color: rgba(52, 168, 83, 0.08) !important; border-color: rgba(52, 168, 83, 0.25) !important; color: #e8eaed; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+
+/* Efeito Hover nos cards coloridos */
+.task-card-nova:hover { box-shadow: 0 6px 12px rgba(66, 133, 244, 0.15) !important; transform: translateY(-3px); }
+.task-card-em_progresso:hover { box-shadow: 0 6px 12px rgba(251, 188, 4, 0.15) !important; transform: translateY(-3px); }
+.task-card-atrasada:hover { box-shadow: 0 6px 12px rgba(234, 67, 53, 0.15) !important; transform: translateY(-3px); }
+.task-card-concluida:hover { box-shadow: 0 6px 12px rgba(52, 168, 83, 0.15) !important; transform: translateY(-3px); }
+
+/* ======== RESPONSIVIDADE (Telas Menores) ======== */
+/* Notebooks pequenos e Tablets (Até 1200px) - Vira 2x2 */
+@media (max-width: 1200px) {
+    .kanban-column { 
+        flex: 1 1 calc(50% - 20px); 
+        min-width: 300px; 
+    }
 }
 
-/* Área de Drop (Colunas) */
-.kanban-tasks { 
-    min-height: 150px; /* Garante espaço para soltar mesmo se a coluna estiver vazia */
-    padding-bottom: 20px; 
-    transition: background-color 0.2s ease, border 0.2s ease; 
-    border-radius: 8px; 
-    border: 2px solid transparent; 
-}
-
-/* Efeito quando uma tarefa paira sobre a coluna */
-.kanban-tasks.drag-over { 
-    background-color: rgba(26, 115, 232, 0.05); 
-    border-color: #8ab4f8; 
-    border-style: dashed; 
-}
-
-body.dark-mode .kanban-tasks.drag-over { 
-    background-color: rgba(138, 180, 248, 0.05); 
-    border-color: #8ab4f8; 
+/* Telas bem pequenas / Celulares (Até 768px) - Empilha tudo */
+@media (max-width: 768px) {
+    .kanban-column { 
+        flex: 1 1 100%; 
+        min-width: 100%; 
+    }
+    
+    .history-toolbar > div {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .filters-container { 
+        flex-direction: column; 
+        align-items: stretch; 
+        width: 100%; 
+    }
+    
+    .search-input, .filter-select { 
+        max-width: 100%; 
+        width: 100%; 
+    }
 }
