@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dueDate: new Date(`${dateVal}T${timeVal}`).getTime(),
             completed: false,
             status: 'nova', 
+            alarmSet: false, // Inicia sem alarme
             subtasks: []
         };
 
@@ -47,6 +48,45 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('closeSubjectsModalBtn').addEventListener('click', closeSubjectsModal);
     document.getElementById('addSubjectBtn').addEventListener('click', addSubject);
 });
+
+// Função segura para lidar com o sino
+window.toggleAlarm = function(id) {
+    chrome.storage.local.get({tasks: []}, (data) => {
+        let needsUpdate = false;
+        
+        const tasks = data.tasks.map(t => {
+            if (t.id === id) {
+                if (t.alarmSet) {
+                    try { chrome.alarms.clear(`task-alert-${id}`); } catch(e) {}
+                    t.alarmSet = false;
+                    needsUpdate = true;
+                } else {
+                    const alertTime = Number(t.dueDate) - (5 * 60 * 1000); // 5 min antes
+                    
+                    if (isNaN(alertTime) || alertTime <= Date.now()) {
+                        alert("⚠️ O prazo é muito curto ou já passou para ativar o alarme.");
+                    } else {
+                        try {
+                            chrome.alarms.create(`task-alert-${id}`, { when: alertTime });
+                            t.alarmSet = true;
+                            needsUpdate = true;
+                        } catch(err) {
+                            alert("❌ Erro ao ativar alarme. Você recarregou a extensão?");
+                            console.error(err);
+                        }
+                    }
+                }
+            }
+            return t;
+        });
+        
+        if (needsUpdate) {
+            chrome.storage.local.set({tasks}, () => {
+                if (typeof loadActiveTasks === 'function') loadActiveTasks();
+            });
+        }
+    });
+};
 
 function loadSubjectsInSelect() {
     chrome.storage.local.get({subjects: []}, (data) => {
@@ -135,19 +175,25 @@ function loadActiveTasks() {
             const subjectBadge = task.subject ? `<div class="subject-badge">📚 Matéria: ${task.subject}</div>` : '';
             const linkBadge = task.link ? `<a href="${task.link}" target="_blank" class="link-badge" title="${task.link}">🔗 Link</a>` : '';
 
+            // Lógica do Sino
+            const alarmIcon = task.alarmSet ? '🔔' : '🔕';
+            const alarmClass = task.alarmSet ? 'alarm-active' : 'alarm-inactive';
+            const alarmBtn = `<button class="btn-alarm ${alarmClass}" data-id="${task.id}" title="Lembrete (5 min antes)">${alarmIcon}</button>`;
+
             li.innerHTML = `
                 <div class="badges-container">${statusBadge}${subjectBadge}${linkBadge}</div>
                 <div class="task-header">
-                    <div class="task-title-area" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px; flex: 1;">
+                    <div class="task-title-area">
                         <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
-                            <span style="font-weight: 600; font-size: 15px;">${task.title || 'Sem Título'}</span>
+                            <input type="checkbox" class="complete-chk" data-id="${task.id}" style="margin-right: 5px;">
+                            <span style="font-weight: 600; font-size: 15px; flex: 1;">${task.title || 'Sem Título'}</span>
+                            ${alarmBtn}
                             <button class="btn-add-subtask" data-id="${task.id}">+</button>
                         </div>
-                        ${task.description ? `<span style="font-size: 13px; color: #5f6368; font-weight: normal;">${task.description}</span>` : ''}
+                        ${task.description ? `<span style="font-size: 13px; color: #5f6368; font-weight: normal; margin-left: 30px;">${task.description}</span>` : ''}
                     </div>
-                    <input type="checkbox" class="complete-chk" data-id="${task.id}">
                 </div>
-                <small>Entrega: ${new Date(task.dueDate).toLocaleString()}</small>
+                <small style="margin-left: 30px; margin-top: 5px;">Entrega: ${new Date(task.dueDate).toLocaleString()}</small>
                 <div class="progress-container"><div class="progress-bar" style="width: ${percent}%"></div></div>
                 ${subtasksHTML}
                 <div class="subtask-input-area" id="input-area-${task.id}">
@@ -156,6 +202,15 @@ function loadActiveTasks() {
                 </div>
             `;
             list.appendChild(li);
+        });
+
+        // Eventos do Sino - Corrigido para isolar o clique
+        document.querySelectorAll('.btn-alarm').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleAlarm(e.currentTarget.getAttribute('data-id'));
+            });
         });
 
         document.querySelectorAll('.complete-chk').forEach(chk => {
@@ -231,7 +286,12 @@ function toggleTaskStatus(id, status) {
         const tasks = data.tasks.map(t => {
             if (t.id === id) {
                 t.completed = status;
-                if (status) { t.status = 'concluida'; if (t.subtasks) t.subtasks = t.subtasks.map(s => ({ ...s, completed: true })); }
+                if (status) { 
+                    t.status = 'concluida'; 
+                    try { chrome.alarms.clear(`task-alert-${id}`); } catch(e){} // Desliga o alarme se completar
+                    t.alarmSet = false;
+                    if (t.subtasks) t.subtasks = t.subtasks.map(s => ({ ...s, completed: true })); 
+                }
             }
             return t;
         });
