@@ -17,9 +17,7 @@
     </div>
     
     <input type="text" id="taskTitle" placeholder="Título da tarefa...">
-    
     <input type="text" id="taskDesc" placeholder="Descrição detalhada (Opcional)...">
-    
     <input type="url" id="taskLink" placeholder="Link útil (Opcional)...">
     
     <button id="addTaskBtn">Adicionar Tarefa</button>
@@ -29,7 +27,21 @@
   
   <div class="action-buttons">
     <a id="openHistory" class="btn-action btn-action-blue">Ver Histórico</a>
-    <a id="manageSubjectsBtn" class="btn-action btn-action-purple">Matérias</a>
+    <a id="manageSubjectsBtn" class="btn-action btn-action-purple">🏢 Matérias</a>
+  </div>
+
+  <div id="subjectsModal" class="modal-overlay">
+    <div class="modal-content" style="width: 400px;">
+      <h3>🏢 Gerenciar Matérias</h3>
+      <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+        <input type="text" id="newSubjectInput" placeholder="Nome da nova matéria...">
+        <button id="addSubjectBtn" style="white-space: nowrap;">Adicionar</button>
+      </div>
+      <ul id="subjectsModalList" style="list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; border: 1px solid #e8eaed; border-radius: 8px;"></ul>
+      <div class="modal-actions">
+        <button id="closeSubjectsModalBtn" class="btn-text">Fechar</button>
+      </div>
+    </div>
   </div>
   
   <script src="static/popup.js"></script>

@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const newTask = {
             id: Date.now().toString(),
-            title: titleVal, // Salva o título
-            description: descVal, // Salva a descrição
+            title: titleVal, 
+            description: descVal, 
             subject: subjectVal, 
             link: linkVal, 
             createdAt: new Date().getTime(),
@@ -41,7 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('openHistory').addEventListener('click', () => chrome.tabs.create({url: 'history.html'}));
-    document.getElementById('manageSubjectsBtn').addEventListener('click', () => chrome.tabs.create({url: 'materias.html'}));
+    
+    // ======== LÓGICA DO MODAL DE MATÉRIAS ========
+    document.getElementById('manageSubjectsBtn').addEventListener('click', openSubjectsModal);
+    document.getElementById('closeSubjectsModalBtn').addEventListener('click', closeSubjectsModal);
+    document.getElementById('addSubjectBtn').addEventListener('click', addSubject);
 });
 
 function loadSubjectsInSelect() {
@@ -103,7 +107,7 @@ function loadActiveTasks() {
             const subtasks = task.subtasks || []; 
             let subtasksHTML = '';
             if (subtasks.length > 0) {
-                subtasksHTML = `<div class="subtasks-container">`;
+                subtasksHTML = `<div class="subtasks-container expanded">`;
                 subtasks.forEach(sub => {
                     const isCompleted = sub.completed ? 'completed' : '';
                     const isChecked = sub.completed ? 'checked' : '';
@@ -232,5 +236,116 @@ function toggleTaskStatus(id, status) {
             return t;
         });
         chrome.storage.local.set({tasks}, loadActiveTasks);
+    });
+}
+
+// ======== FUNÇÕES DE GERENCIAMENTO DE MATÉRIAS ========
+function openSubjectsModal() {
+    renderSubjectsList();
+    const modal = document.getElementById('subjectsModal');
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('active'), 10);
+}
+
+function closeSubjectsModal() {
+    const modal = document.getElementById('subjectsModal');
+    modal.classList.remove('active');
+    setTimeout(() => { modal.style.display = 'none'; }, 300);
+    loadSubjectsInSelect();
+    loadActiveTasks();
+}
+
+function renderSubjectsList() {
+    chrome.storage.local.get({subjects: []}, (data) => {
+        const list = document.getElementById('subjectsModalList');
+        list.innerHTML = '';
+        data.subjects.forEach(sub => {
+            const li = document.createElement('li');
+            li.className = 'modal-subject-item';
+            
+            const span = document.createElement('span');
+            span.style.fontWeight = '500';
+            span.textContent = sub.name;
+            
+            const actions = document.createElement('div');
+            actions.className = 'modal-subject-actions';
+            
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn-icon';
+            editBtn.textContent = '✏️';
+            editBtn.title = "Editar";
+            editBtn.addEventListener('click', () => editSubject(sub.name));
+            
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn-icon';
+            delBtn.style.color = '#ea4335';
+            delBtn.textContent = '🗑️';
+            delBtn.title = "Excluir";
+            delBtn.addEventListener('click', () => deleteSubject(sub.name));
+            
+            actions.appendChild(editBtn);
+            actions.appendChild(delBtn);
+            
+            li.appendChild(span);
+            li.appendChild(actions);
+            list.appendChild(li);
+        });
+    });
+}
+
+function addSubject() {
+    const input = document.getElementById('newSubjectInput');
+    const name = input.value.trim();
+    if(!name) return;
+    chrome.storage.local.get({subjects: []}, (data) => {
+        if(data.subjects.find(s => s.name.toLowerCase() === name.toLowerCase())) {
+            alert('Matéria já existe!'); return;
+        }
+        data.subjects.push({name, color: '#9c27b0'});
+        chrome.storage.local.set({subjects: data.subjects}, () => {
+            input.value = '';
+            renderSubjectsList();
+        });
+    });
+}
+
+function editSubject(oldName) {
+    const newName = prompt(`Novo nome para a matéria "${oldName}":`, oldName);
+    if(!newName || newName.trim() === '' || newName === oldName) return;
+    const finalName = newName.trim();
+    
+    chrome.storage.local.get({subjects: [], tasks: []}, (data) => {
+        if(data.subjects.find(s => s.name.toLowerCase() === finalName.toLowerCase())) {
+            alert('Já existe uma matéria com este nome!'); return;
+        }
+        
+        const subjects = data.subjects.map(s => {
+            if(s.name === oldName) s.name = finalName;
+            return s;
+        });
+        const tasks = data.tasks.map(t => {
+            if(t.subject === oldName) t.subject = finalName;
+            return t;
+        });
+        
+        chrome.storage.local.set({subjects, tasks}, () => {
+            renderSubjectsList();
+            loadActiveTasks();
+        });
+    });
+}
+
+function deleteSubject(name) {
+    if(!confirm(`Tem certeza que deseja excluir a matéria "${name}"? As tarefas vinculadas a ela não serão apagadas, mas ficarão sem matéria.`)) return;
+    chrome.storage.local.get({subjects: [], tasks: []}, (data) => {
+        const subjects = data.subjects.filter(s => s.name !== name);
+        const tasks = data.tasks.map(t => {
+            if(t.subject === name) t.subject = '';
+            return t;
+        });
+        chrome.storage.local.set({subjects, tasks}, () => {
+            renderSubjectsList();
+            loadActiveTasks();
+        });
     });
 }

@@ -17,9 +17,10 @@
       <div class="menu-container">
         <button id="menuBtn" class="hamburger-btn"><span style="font-size: 18px;">☰</span> MENU</button>
         <div id="dropdownMenu" class="dropdown-menu">
+          <a href="#" id="menuAddTask">➕ Nova Tarefa</a>
+          <a href="#" id="menuManageSubjects">🏢 Gerenciar Matérias</a>
           <a href="#" id="menuExport">📤 Exportar JSON</a>
           <a href="#" id="menuImport">📥 Importar JSON</a>
-          <a href="materias.html">🏢 Gerenciar Matérias</a>
           <a href="#" id="menuDeleteAll" style="color: #d93025; font-weight: 700; border-top: 2px solid #fce8e6; background-color: #fce8e6;">🗑️ Excluir Todas as Tarefas</a>
         </div>
       </div>
@@ -50,6 +51,34 @@
     <div class="kanban-column" id="col-concluida"><h3>✔ Concluídas</h3><ul class="kanban-tasks" id="list-concluida"></ul></div>
   </div>
   
+  <div id="addTaskModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>✨ Nova Tarefa</h3>
+      <div class="input-group">
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px;">Matéria:</label>
+        <select id="newTaskSubject"><option value="">Nenhuma matéria (Opcional)</option></select>
+        
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px; margin-top: 5px;">Data e Hora:</label>
+        <div class="date-time-row">
+          <input type="date" id="newTaskDate"><input type="time" id="newTaskTime">
+        </div>
+        
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px; margin-top: 5px;">Título:</label>
+        <input type="text" id="newTaskTitle" placeholder="Título da tarefa...">
+        
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px; margin-top: 5px;">Descrição:</label>
+        <input type="text" id="newTaskDesc" placeholder="Descrição detalhada (Opcional)...">
+        
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px; margin-top: 5px;">Link Vinculado:</label>
+        <input type="url" id="newTaskLink" placeholder="https://...">
+      </div>
+      <div class="modal-actions">
+        <button id="cancelAddTaskBtn" class="btn-text">Cancelar</button>
+        <button id="saveNewTaskBtn">Adicionar Tarefa</button>
+      </div>
+    </div>
+  </div>
+
   <div id="editModal" class="modal-overlay">
     <div class="modal-content">
       <h3>✏️ Editar Tarefa</h3>
@@ -77,6 +106,20 @@
       <div class="modal-actions">
         <button id="cancelEditBtn" class="btn-text">Cancelar</button>
         <button id="saveEditBtn">Salvar Alterações</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="subjectsModal" class="modal-overlay">
+    <div class="modal-content" style="width: 400px;">
+      <h3>🏢 Gerenciar Matérias</h3>
+      <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+        <input type="text" id="newSubjectInput" placeholder="Nome da nova matéria...">
+        <button id="addSubjectBtn" style="white-space: nowrap;">Adicionar</button>
+      </div>
+      <ul id="subjectsModalList" style="list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; border: 1px solid #e8eaed; border-radius: 8px;"></ul>
+      <div class="modal-actions">
+        <button id="closeSubjectsModalBtn" class="btn-text">Fechar</button>
       </div>
     </div>
   </div>

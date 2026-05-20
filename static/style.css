@@ -17,7 +17,6 @@ button:hover { background-color: #1557b0; box-shadow: 0 2px 6px rgba(26, 115, 23
 /* ======== TAREFAS E CARTÕES ======== */
 .task-list { list-style-type: none; padding: 0; margin: 0; }
 
-/* Reduzido o padding, border-radius e margin para deixar os cards mais compactos */
 .task-item, .subject-item, .add-subject-box { 
     background: white; padding: 10px 12px; border-radius: 10px; margin-bottom: 8px; 
     border: 1px solid #e8eaed; display: flex; flex-direction: column; gap: 4px; 
@@ -36,7 +35,6 @@ button:hover { background-color: #1557b0; box-shadow: 0 2px 6px rgba(26, 115, 23
 .progress-container { width: 100%; background-color: #f1f3f4; border-radius: 6px; overflow: hidden; height: 8px; margin-top: 5px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); }
 .progress-bar { height: 100%; background: linear-gradient(90deg, #4285f4, #9c27b0, #ea4335); width: 0%; transition: width 0.4s ease-in-out; border-radius: 6px; }
 
-/* Botões de controle menores e mais unidos */
 .controls { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .btn-chip { background: #f1f3f4; color: #3c4043; border-radius: 16px; padding: 4px 10px; font-weight: 600; font-size: 11px; border: none; transition: all 0.2s ease; cursor: pointer; }
 .btn-chip:hover { background: #e8eaed; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transform: translateY(-1px); }
@@ -47,16 +45,28 @@ button:hover { background-color: #1557b0; box-shadow: 0 2px 6px rgba(26, 115, 23
 .btn-chip.warning { color: white; background: #fbbc04; text-shadow: 0 1px 1px rgba(0,0,0,0.2); }
 .btn-chip.warning:hover { background: #f29900; box-shadow: 0 2px 6px rgba(251, 188, 4, 0.4); }
 
-/* Subtarefas */
-.subtasks-container { margin-top: 8px; margin-left: 12px; padding-left: 15px; border-left: 2px solid #d2e3fc; }
+/* Subtarefas Ocultas por Padrão */
+.subtasks-container { display: none; margin-top: 8px; margin-left: 12px; padding-left: 15px; border-left: 2px solid #d2e3fc; }
+.subtasks-container.expanded { display: block; animation: slideDown 0.3s ease; }
+
+@keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
 .subtask-item { position: relative; font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: #5f6368; transition: all 0.2s; }
 .subtask-item::before { content: ""; position: absolute; left: -15px; top: 50%; width: 10px; border-top: 2px solid #d2e3fc; }
 .subtask-item-content { display: flex; align-items: center; gap: 8px; }
 .subtask-item.completed span { text-decoration: line-through; color: #9aa0a6; font-style: italic; }
+
 .subtask-input-area { display: none; margin-top: 5px; gap: 5px; }
 .subtask-input-area.active { display: flex; }
 
-/* ======== MODAL ======== */
+/* Contagem de Subtarefas e Botão de Expandir */
+.subtask-info-row { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+.subtask-badge { font-size: 10px; background: rgba(26, 115, 232, 0.1); color: #1a73e8; padding: 2px 8px; border-radius: 6px; font-weight: bold; border: 1px solid rgba(26, 115, 232, 0.2); }
+.expand-btn { background: none; border: none; color: #5f6368; padding: 2px 5px; cursor: pointer; transition: transform 0.3s; font-size: 14px; box-shadow: none; border-radius: 50%; }
+.expand-btn:hover { background: #f1f3f4; box-shadow: none; }
+.expand-btn.rotated { transform: rotate(180deg); }
+
+/* ======== MODAIS (OVERLAYS E CONTEÚDO) ======== */
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(32,33,36,0.6); align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; backdrop-filter: blur(3px); }
 .modal-overlay.active { display: flex; opacity: 1; }
 .modal-content { background: white; padding: 24px; border-radius: 16px; width: 450px; max-width: 90%; max-height: 90vh; overflow-y: auto; transform: translateY(30px) scale(0.95); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 24px 38px rgba(0,0,0,0.14); }
@@ -67,8 +77,15 @@ button:hover { background-color: #1557b0; box-shadow: 0 2px 6px rgba(26, 115, 23
 .modal-actions .btn-text { background: transparent; color: #5f6368; }
 .modal-actions .btn-text:hover { background: #f1f3f4; }
 
+/* ======== LISTAGEM DE MATÉRIAS NO MODAL ======== */
+.modal-subject-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #e8eaed; transition: background-color 0.2s; }
+.modal-subject-item:last-child { border-bottom: none; }
+.modal-subject-item:hover { background-color: #f8f9fa; }
+.modal-subject-actions { display: flex; gap: 5px; }
+.btn-icon { background: none; border: none; cursor: pointer; color: #5f6368; font-size: 14px; padding: 6px; border-radius: 4px; box-shadow: none; transition: all 0.2s; }
+.btn-icon:hover { background: #e8eaed; color: #1a73e8; transform: scale(1.1); box-shadow: none; }
+
 /* ======== SELOS (BADGES) ======== */
-/* Selos (Tags) menores para economizar espaço */
 .badges-container { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
 .subject-badge { display: inline-block; background: linear-gradient(45deg, #9c27b0, #ea4335); color: white; padding: 2px 8px; border-radius: 8px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(156, 39, 176, 0.3); margin-bottom: 0; }
 .status-badge { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -76,14 +93,10 @@ button:hover { background-color: #1557b0; box-shadow: 0 2px 6px rgba(26, 115, 23
 .status-progresso { background-color: #fff3e0; color: #f57c00; }
 .status-concluida { background-color: #e6f4ea; color: #1e8e3e; }
 .status-atrasada { background-color: #fce8e6; color: #d93025; }
-
-/* Link Badge */
 .link-badge { display: inline-flex; align-items: center; background-color: #e8f0fe; color: #1a73e8; padding: 2px 8px; border-radius: 8px; font-size: 9px; font-weight: 700; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: background-color 0.2s; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 0; }
 .link-badge:hover { background-color: #d2e3fc; }
 
 /* ======== MATÉRIAS E POPUP ======== */
-.subject-item { flex-direction: row; justify-content: space-between; align-items: center; border-left: 4px solid #9c27b0; }
-.subject-item strong { color: #202124; font-size: 15px; }
 .action-buttons { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;}
 .btn-action { flex: 1; min-width: 120px; display: flex; justify-content: center; align-items: center; padding: 12px; border-radius: 10px; text-decoration: none; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; }
 .btn-action-blue { background-color: #e8f0fe; color: #1a73e8; border-color: #d2e3fc; }
@@ -121,72 +134,35 @@ button:hover { background-color: #1557b0; box-shadow: 0 2px 6px rgba(26, 115, 23
 .filter-select { max-width: 180px; border-radius: 20px; font-weight: 500; color: #3c4043; cursor: pointer; }
 
 /* ======== ANIMAÇÕES ESPECIAIS ======== */
-@keyframes taskCompleteAnim {
-    0% { transform: scale(1); opacity: 1; }
-    30% { transform: scale(1.02); background-color: #e6f4ea; border-color: #ceead6; opacity: 1; }
-    100% { transform: scale(0.8) translateX(50px); opacity: 0; }
-}
+@keyframes taskCompleteAnim { 0% { transform: scale(1); opacity: 1; } 30% { transform: scale(1.02); background-color: #e6f4ea; border-color: #ceead6; opacity: 1; } 100% { transform: scale(0.8) translateX(50px); opacity: 0; } }
 .task-item.completing { animation: taskCompleteAnim 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards; pointer-events: none; }
-
-@keyframes cardEnter {
-    0% { transform: translateY(-20px) scale(0.9); opacity: 0; }
-    60% { transform: translateY(5px) scale(1.02); opacity: 0.8; }
-    100% { transform: translateY(0) scale(1); opacity: 1; }
-}
+@keyframes cardEnter { 0% { transform: translateY(-20px) scale(0.9); opacity: 0; } 60% { transform: translateY(5px) scale(1.02); opacity: 0.8; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
 .kanban-tasks .task-item { animation: cardEnter 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards; }
-
-@keyframes cardLeave {
-    0% { transform: scale(1); opacity: 1; filter: blur(0); }
-    100% { transform: scale(0.8) translateY(20px); opacity: 0; filter: blur(2px); }
-}
+@keyframes cardLeave { 0% { transform: scale(1); opacity: 1; filter: blur(0); } 100% { transform: scale(0.8) translateY(20px); opacity: 0; filter: blur(2px); } }
 .task-item.moving-out { animation: cardLeave 0.35s cubic-bezier(0.4, 0, 1, 1) forwards; pointer-events: none; }
-
-@keyframes blackHoleImplode {
-    0% { transform: scale(1); opacity: 1; filter: blur(0); }
-    100% { transform: scale(0); opacity: 0; filter: blur(3px); }
-}
+@keyframes blackHoleImplode { 0% { transform: scale(1); opacity: 1; filter: blur(0); } 100% { transform: scale(0); opacity: 0; filter: blur(3px); } }
 .task-item.black-hole { animation: blackHoleImplode 0.5s linear forwards; pointer-events: none; box-shadow: 0 0 15px rgba(234, 67, 53, 0.4); border-color: #ea4335; }
 
-/* ======== DRAG AND DROP (ARRASTAR TAREFAS) ======== */
+/* ======== DRAG AND DROP ======== */
 .task-item[draggable="true"] { cursor: grab; }
 .task-item[draggable="true"]:active { cursor: grabbing; }
+.task-item.dragging { opacity: 0.5; transform: scale(0.95); box-shadow: 0 0 15px rgba(26, 115, 232, 0.4); border: 2px dashed #1a73e8 !important; z-index: 1000; }
 
-/* Efeito visual na tarefa que está sendo segurada */
-.task-item.dragging { 
-    opacity: 0.5; 
-    transform: scale(0.95); 
-    box-shadow: 0 0 15px rgba(26, 115, 232, 0.4); 
-    border: 2px dashed #1a73e8 !important; 
-    z-index: 1000; 
-}
-
-/* ======== BOTÃO DE TEMA (MODO DARK/LIGHT) ======== */
+/* ======== BOTÃO DE TEMA E MODO ESCURO ======== */
 .theme-btn { background: transparent; border: 1px solid #dadce0; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 50%; transition: background 0.2s, transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 .theme-btn:hover { background: #f8f9fa; transform: scale(1.05); }
 .theme-btn img { width: 22px; height: 22px; transition: all 0.3s ease; }
 
-/* ======== MODO ESCURO (DARK MODE) ======== */
 body.dark-mode { background-color: #121212; color: #e8eaed; }
-
-/* Paineis e Cards no Modo Escuro */
-body.dark-mode .history-toolbar, body.dark-mode .dropdown-menu, body.dark-mode .modal-content, 
-body.dark-mode .subject-item, body.dark-mode .add-subject-box {
-    background-color: #1e1e1e; border-color: #3c4043; color: #e8eaed; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-}
-
-/* Colunas do Kanban */
+body.dark-mode .history-toolbar, body.dark-mode .dropdown-menu, body.dark-mode .modal-content { background-color: #1e1e1e; border-color: #3c4043; color: #e8eaed; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
 body.dark-mode .kanban-column { background-color: #202124; box-shadow: none; }
 body.dark-mode .kanban-column h3 { color: #e8eaed; border-bottom-color: #3c4043; }
-
-/* Textos e Inputs */
 body.dark-mode h2, body.dark-mode h3, body.dark-mode .modal-content h3 { color: #8ab4f8; }
 body.dark-mode input, body.dark-mode select { background-color: #202124; color: #e8eaed; border-color: #5f6368; }
 body.dark-mode input:focus, body.dark-mode select:focus { border-color: #8ab4f8; box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.15); }
 body.dark-mode .subtask-item { color: #bdc1c6; }
 body.dark-mode .subtask-item::before { border-color: #5f6368; }
 body.dark-mode .subtasks-container { border-left-color: #5f6368; }
-
-/* Botões no Modo Escuro */
 body.dark-mode .theme-btn { border-color: #3c4043; background: #202124; }
 body.dark-mode .theme-btn:hover { background: #3c4043; }
 body.dark-mode .hamburger-btn { background-color: #1e1e1e; color: #e8eaed; border-color: #3c4043; }
@@ -195,63 +171,41 @@ body.dark-mode .dropdown-menu a { color: #e8eaed; border-bottom-color: #3c4043; 
 body.dark-mode .dropdown-menu a:hover { background-color: #3c4043; color: #8ab4f8; }
 body.dark-mode .btn-chip { background: #3c4043; color: #e8eaed; }
 body.dark-mode .btn-chip:hover { background: #5f6368; }
-
-/* Elementos Visuais e Progresso */
 body.dark-mode .progress-container { background-color: #3c4043; }
 body.dark-mode .link-badge { background-color: #202124; color: #8ab4f8; border: 1px solid #3c4043; }
 body.dark-mode .link-badge:hover { background-color: #3c4043; }
-body.dark-mode .client-item strong, body.dark-mode .subject-item strong { color: #e8eaed; }
-
 body.dark-mode .kanban-tasks.drag-over { background-color: rgba(138, 180, 248, 0.05); border-color: #8ab4f8; }
 
+body.dark-mode .subtask-badge { background: rgba(138, 180, 248, 0.1); color: #8ab4f8; border-color: rgba(138, 180, 248, 0.2); }
+body.dark-mode .expand-btn { color: #bdc1c6; }
+body.dark-mode .expand-btn:hover { background: #3c4043; }
+
+body.dark-mode .modal-subject-item { border-bottom-color: #3c4043; }
+body.dark-mode .modal-subject-item:hover { background-color: #202124; }
+body.dark-mode .btn-icon { color: #bdc1c6; }
+body.dark-mode .btn-icon:hover { background: #3c4043; color: #8ab4f8; }
+
 /* ======== CORES DE FUNDO DOS CARDS (STATUS) ======== */
-/* Modo Claro (Tons Pastéis) */
 .task-card-nova { background-color: #f0f6ff !important; border-color: #d2e3fc !important; }
 .task-card-em_progresso { background-color: #fffcf0 !important; border-color: #fce8b2 !important; }
 .task-card-atrasada { background-color: #fef0f0 !important; border-color: #fad2cf !important; }
 .task-card-concluida { background-color: #f0fdf4 !important; border-color: #ceead6 !important; }
 
-/* Modo Escuro (Tons Escuros Translúcidos) */
 body.dark-mode .task-card-nova { background-color: rgba(66, 133, 244, 0.08) !important; border-color: rgba(66, 133, 244, 0.25) !important; color: #e8eaed; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
 body.dark-mode .task-card-em_progresso { background-color: rgba(251, 188, 4, 0.08) !important; border-color: rgba(251, 188, 4, 0.25) !important; color: #e8eaed; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
 body.dark-mode .task-card-atrasada { background-color: rgba(234, 67, 53, 0.08) !important; border-color: rgba(234, 67, 53, 0.25) !important; color: #e8eaed; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
 body.dark-mode .task-card-concluida { background-color: rgba(52, 168, 83, 0.08) !important; border-color: rgba(52, 168, 83, 0.25) !important; color: #e8eaed; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
 
-/* Efeito Hover nos cards coloridos */
 .task-card-nova:hover { box-shadow: 0 6px 12px rgba(66, 133, 244, 0.15) !important; transform: translateY(-3px); }
 .task-card-em_progresso:hover { box-shadow: 0 6px 12px rgba(251, 188, 4, 0.15) !important; transform: translateY(-3px); }
 .task-card-atrasada:hover { box-shadow: 0 6px 12px rgba(234, 67, 53, 0.15) !important; transform: translateY(-3px); }
 .task-card-concluida:hover { box-shadow: 0 6px 12px rgba(52, 168, 83, 0.15) !important; transform: translateY(-3px); }
 
 /* ======== RESPONSIVIDADE (Telas Menores) ======== */
-/* Notebooks pequenos e Tablets (Até 1200px) - Vira 2x2 */
-@media (max-width: 1200px) {
-    .kanban-column { 
-        flex: 1 1 calc(50% - 20px); 
-        min-width: 300px; 
-    }
-}
-
-/* Telas bem pequenas / Celulares (Até 768px) - Empilha tudo */
+@media (max-width: 1200px) { .kanban-column { flex: 1 1 calc(50% - 20px); min-width: 300px; } }
 @media (max-width: 768px) {
-    .kanban-column { 
-        flex: 1 1 100%; 
-        min-width: 100%; 
-    }
-    
-    .history-toolbar > div {
-        width: 100%;
-        justify-content: space-between;
-    }
-    
-    .filters-container { 
-        flex-direction: column; 
-        align-items: stretch; 
-        width: 100%; 
-    }
-    
-    .search-input, .filter-select { 
-        max-width: 100%; 
-        width: 100%; 
-    }
+    .kanban-column { flex: 1 1 100%; min-width: 100%; }
+    .history-toolbar > div { width: 100%; justify-content: space-between; }
+    .filters-container { flex-direction: column; align-items: stretch; width: 100%; }
+    .search-input, .filter-select { max-width: 100%; width: 100%; }
 }
