@@ -1,11 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Task Kanban Tracker",
-  "version": "2.0.1",
+  "version": "2.2.0",
   "description": "Gerencie tarefas em um quadro Kanban na barra lateral do navegador.",
   "permissions": [
     "storage",
-    "sidePanel"
+    "sidePanel",
+    "notifications",
+    "alarms"
   ],
   "background": {
     "service_worker": "./static/background.js"

@@ -108,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dropdown) dropdown.classList.remove('show');
 
         if(confirm("⚠️ ATENÇÃO: Tem certeza ABSOLUTA que deseja EXCLUIR TODAS as tarefas? Isso não pode ser desfeito!")) {
+            try { chrome.alarms.clearAll(); } catch(err){} // Apaga alarmes
             chrome.storage.local.set({tasks: []}, () => {
                 alert("Todas as tarefas foram excluídas com sucesso.");
                 loadAllTasks(); 
@@ -141,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('saveNewTaskBtn').addEventListener('click', saveNewTask);
 });
 
-// Tornamos a função global para funcionar no onClick gerado por string
 window.toggleSubtasks = function(taskId) {
     const container = document.getElementById(`sub-cont-${taskId}`);
     const btn = document.getElementById(`btn-expand-${taskId}`);
@@ -150,6 +150,44 @@ window.toggleSubtasks = function(taskId) {
         container.classList.toggle('expanded');
         btn.classList.toggle('rotated');
     }
+};
+
+window.toggleAlarm = function(id) {
+    chrome.storage.local.get({tasks: []}, (data) => {
+        let needsUpdate = false;
+        
+        const tasks = data.tasks.map(t => {
+            if (t.id === id) {
+                if (t.alarmSet) {
+                    try { chrome.alarms.clear(`task-alert-${id}`); } catch(e) {}
+                    t.alarmSet = false;
+                    needsUpdate = true;
+                } else {
+                    const alertTime = Number(t.dueDate) - (5 * 60 * 1000); // 5 min antes
+                    
+                    if (isNaN(alertTime) || alertTime <= Date.now()) {
+                        alert("⚠️ O prazo é muito curto ou já passou para ativar o alarme.");
+                    } else {
+                        try {
+                            chrome.alarms.create(`task-alert-${id}`, { when: alertTime });
+                            t.alarmSet = true;
+                            needsUpdate = true;
+                        } catch(err) {
+                            alert("❌ Erro ao ativar alarme. Você recarregou a extensão?");
+                            console.error(err);
+                        }
+                    }
+                }
+            }
+            return t;
+        });
+        
+        if (needsUpdate) {
+            chrome.storage.local.set({tasks}, () => {
+                if (typeof loadAllTasks === 'function') loadAllTasks();
+            });
+        }
+    });
 };
 
 function updateTaskStatusFromDrag(taskId, newStatus) {
@@ -161,6 +199,8 @@ function updateTaskStatusFromDrag(taskId, newStatus) {
 
                 if (newStatus === 'concluida') {
                     t.completed = true;
+                    try { chrome.alarms.clear(`task-alert-${taskId}`); } catch(e){} 
+                    t.alarmSet = false;
                     if (t.subtasks) t.subtasks = t.subtasks.map(s => ({ ...s, completed: true }));
                 } else {
                     t.completed = false; 
@@ -262,6 +302,11 @@ function loadAllTasks() {
             const subjectBadge = task.subject ? `<div class="subject-badge">📚 Matéria: ${task.subject}</div>` : '';
             const linkBadge = task.link ? `<a href="${task.link}" target="_blank" class="link-badge" title="${task.link}">🔗 Link</a>` : '';
 
+            // Renderizando o Sino do Alarme
+            const alarmIcon = task.alarmSet ? '🔔' : '🔕';
+            const alarmClass = task.alarmSet ? 'alarm-active' : 'alarm-inactive';
+            const alarmBtn = `<button class="btn-alarm ${alarmClass}" data-id="${task.id}" title="Lembrete (5 min antes)">${alarmIcon}</button>`;
+
             const li = document.createElement('li');
             li.className = `task-item task-card-${task.status}`;
             li.id = `task-hist-${task.id}`; 
@@ -278,9 +323,12 @@ function loadAllTasks() {
             li.innerHTML = `
                 <div class="badges-container">${statusBadge}${subjectBadge}${linkBadge}</div>
                 
-                <div class="task-header" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
-                    <strong style="${task.completed ? 'text-decoration: line-through; color: #9aa0a6;' : ''}; font-size: 15px;">${task.title || 'Sem Título'}</strong>
-                    ${task.description ? `<span style="font-size: 13px; color: #5f6368; font-weight: normal; ${task.completed ? 'text-decoration: line-through; color: #9aa0a6;' : ''}">${task.description}</span>` : ''}
+                <div class="task-header" style="display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+                        <strong style="${task.completed ? 'text-decoration: line-through; color: #9aa0a6;' : ''}; font-size: 15px;">${task.title || 'Sem Título'}</strong>
+                        ${task.description ? `<span style="font-size: 13px; color: #5f6368; font-weight: normal; ${task.completed ? 'text-decoration: line-through; color: #9aa0a6;' : ''}">${task.description}</span>` : ''}
+                    </div>
+                    ${alarmBtn}
                 </div>
                 
                 <small style="color: #80868b; margin-top: 4px;">Entrega: ${new Date(task.dueDate).toLocaleString()}</small>
@@ -303,6 +351,15 @@ function loadAllTasks() {
 
             const columnTarget = document.getElementById(`list-${task.status}`);
             if (columnTarget) columnTarget.appendChild(li);
+        });
+
+        // Eventos dos Alarmes e Botões - Com preventDefault para não vazar o click
+        document.querySelectorAll('.btn-alarm').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleAlarm(e.currentTarget.getAttribute('data-id'));
+            });
         });
 
         document.querySelectorAll('.btn-chip[data-action]').forEach(btn => {
@@ -360,7 +417,6 @@ function closeAddTaskModal() {
     modal.classList.remove('active');
     setTimeout(() => { modal.style.display = 'none'; }, 300);
     
-    // Limpa os campos
     document.getElementById('newTaskTitle').value = '';
     document.getElementById('newTaskDesc').value = '';
     document.getElementById('newTaskLink').value = '';
@@ -399,6 +455,7 @@ function saveNewTask() {
         dueDate: new Date(`${dateVal}T${timeVal}`).getTime(),
         completed: false,
         status: 'nova', 
+        alarmSet: false,
         subtasks: []
     };
 
@@ -469,7 +526,20 @@ function saveEditedTask() {
                 t.subject = newSubject; 
                 t.link = newLink; 
                 t.dueDate = new Date(`${newDate}T${newTime}`).getTime();
+                
                 if (t.status === 'atrasada' && t.dueDate >= Date.now()) t.status = 'em_progresso';
+                
+                // Atualiza o alarme para a nova data caso ele estivesse ativado!
+                if (t.alarmSet) {
+                    const alertTime = t.dueDate - (5 * 60 * 1000);
+                    if (alertTime > Date.now()) {
+                        try { chrome.alarms.create(`task-alert-${t.id}`, { when: alertTime }); } catch(e){}
+                    } else {
+                        try { chrome.alarms.clear(`task-alert-${t.id}`); } catch(e){}
+                        t.alarmSet = false;
+                    }
+                }
+
                 document.querySelectorAll('.edit-sub-input').forEach(input => {
                     const subTask = t.subtasks.find(s => s.id === input.getAttribute('data-sub-id'));
                     if(subTask) subTask.description = input.value.trim();
@@ -487,8 +557,14 @@ function changeStatus(id, status) {
         const tasks = data.tasks.map(t => { 
             if (t.id === id) {
                 t.completed = status;
-                if(status) { t.status = 'concluida'; if(t.subtasks) t.subtasks = t.subtasks.map(s => ({ ...s, completed: true })); } 
-                else { t.status = (t.dueDate < Date.now()) ? 'atrasada' : 'em_progresso'; }
+                if(status) { 
+                    t.status = 'concluida'; 
+                    try { chrome.alarms.clear(`task-alert-${id}`); } catch(e){} // Desliga o alarme
+                    t.alarmSet = false;
+                    if(t.subtasks) t.subtasks = t.subtasks.map(s => ({ ...s, completed: true })); 
+                } else { 
+                    t.status = (t.dueDate < Date.now()) ? 'atrasada' : 'em_progresso'; 
+                }
             } 
             return t; 
         });
@@ -497,6 +573,7 @@ function changeStatus(id, status) {
 }
 
 function deleteTask(id) {
+    try { chrome.alarms.clear(`task-alert-${id}`); } catch(e){} // Apaga o alarme ao deletar a tarefa
     chrome.storage.local.get({tasks: []}, (data) => {
         const tasks = data.tasks.filter(t => t.id !== id);
         chrome.storage.local.set({tasks}, loadAllTasks);
