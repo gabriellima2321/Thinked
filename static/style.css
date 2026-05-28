@@ -216,3 +216,26 @@ body.dark-mode .task-card-concluida { background-color: rgba(52, 168, 83, 0.08) 
     .filters-container { flex-direction: column; align-items: stretch; width: 100%; }
     .search-input, .filter-select { max-width: 100%; width: 100%; }
 }
+
+/* ======== ANIMAÇÕES DOS BOTÕES PRINCIPAIS ======== */
+
+/* Estado inicial e transição suave */
+#addTaskBtn, #addSubjectBtn {
+    transition: all 0.3s ease-in-out !important;
+    cursor: pointer;
+    /* Mantém as cores de fundo originais que você já definiu no HTML/CSS */
+}
+
+/* Efeito ao passar o mouse (Hover) - O botão levanta levemente e ganha sombra */
+#addTaskBtn:hover, #addSubjectBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    filter: brightness(1.1); /* Deixa a cor um pouco mais viva */
+}
+
+/* Efeito ao clicar (Active) - O botão afunda, simulando o clique físico */
+#addTaskBtn:active, #addSubjectBtn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    filter: brightness(0.9);
+}

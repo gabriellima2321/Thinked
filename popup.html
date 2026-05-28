@@ -7,9 +7,13 @@
 <body>
   <h2>✨ Nova Tarefa</h2>
   <div class="input-group">
-    <select id="taskSubject">
-      <option value="">Nenhuma matéria (Opcional)</option>
-    </select>
+    
+    <div class="subject-row" style="display: flex; gap: 8px; align-items: center; width: 100%;">
+      <select id="taskSubject" style="flex: 1; padding: 6px 10px; font-size: 13px; height: 34px;">
+        <option value="">Nenhuma matéria (Opcional)</option>
+      </select>
+      <button id="manageSubjectsBtn" title="Gerenciar Matérias" style="width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; border-radius: 8px; background: linear-gradient(45deg, #9c27b0, #7b1fa2); color: white; border: none; cursor: pointer; font-weight: bold; flex-shrink: 0;">+</button>
+    </div>
     
     <div class="date-time-row">
       <input type="date" id="taskDate" title="Data da entrega">
@@ -20,15 +24,13 @@
     <input type="text" id="taskDesc" placeholder="Descrição detalhada (Opcional)...">
     <input type="url" id="taskLink" placeholder="Link útil (Opcional)...">
     
-    <button id="addTaskBtn">Adicionar Tarefa</button>
+    <div class="buttons-action-row" style="display: flex; gap: 8px; width: 100%; margin-top: 5px;">
+      <button id="addTaskBtn" style="flex: 1; margin: 0;">Adicionar Tarefa</button>
+      <a id="openHistory" class="btn-action btn-action-blue" style="flex: 1; margin: 0; display: flex; align-items: center; justify-content: center; text-align: center; text-decoration: none; font-size: 14px; font-weight: 500; border-radius: 8px; height: auto;">Ver Histórico</a>
+    </div>
   </div>
   
   <ul id="activeTasks" class="task-list"></ul>
-  
-  <div class="action-buttons">
-    <a id="openHistory" class="btn-action btn-action-blue">Ver Histórico</a>
-    <a id="manageSubjectsBtn" class="btn-action btn-action-purple">🏢 Matérias</a>
-  </div>
 
   <div id="subjectsModal" class="modal-overlay">
     <div class="modal-content" style="width: 400px;">
@@ -37,13 +39,46 @@
         <input type="text" id="newSubjectInput" placeholder="Nome da nova matéria...">
         <button id="addSubjectBtn" style="white-space: nowrap;">Adicionar</button>
       </div>
-      <ul id="subjectsModalList" style="list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; border: 1px solid #e8eaed; border-radius: 8px;"></ul>
+      <ul id="subjectsModalList" style="list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto;"></ul>
       <div class="modal-actions">
         <button id="closeSubjectsModalBtn" class="btn-text">Fechar</button>
       </div>
     </div>
   </div>
-  
+
+  <div id="editTaskModal" class="modal-overlay">
+    <div class="modal-content" style="width: 400px;">
+      <h3>✏️ Editar Tarefa</h3>
+      <div class="input-group" style="margin-top: 15px; text-align: left;">
+        
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px; display: block; font-weight: 500;">Matéria:</label>
+        <select id="editTaskSubject">
+          <option value="">Nenhuma matéria (Opcional)</option>
+        </select>
+        
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px; display: block; font-weight: 500;">Prazo de Entrega:</label>
+        <div class="date-time-row">
+          <input type="date" id="editTaskDate">
+          <input type="time" id="editTaskTime">
+        </div>
+        
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px; display: block; font-weight: 500;">Título:</label>
+        <input type="text" id="editTaskTitle" placeholder="Título da tarefa...">
+        
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px; display: block; font-weight: 500;">Descrição:</label>
+        <input type="text" id="editTaskDesc" placeholder="Descrição detalhada (Opcional)...">
+        
+        <label style="font-size: 12px; color: #5f6368; margin-bottom: -5px; display: block; font-weight: 500;">Link Vinculado:</label>
+        <input type="url" id="editTaskLink" placeholder="https://...">
+      </div>
+      
+      <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+        <button id="closeEditTaskModalBtn" class="btn-text">Cancelar</button>
+        <button id="saveEditTaskBtn" style="background: linear-gradient(45deg, #1a73e8, #1557b0); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 500;">Salvar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="static/popup.js"></script>
 </body>
 </html>

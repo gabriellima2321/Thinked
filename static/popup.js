@@ -1,8 +1,11 @@
+let currentPopupEditingTaskId = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     setDefaultDateTime();
     loadActiveTasks();
     loadSubjectsInSelect(); 
 
+    // ======== LÓGICA DE ADICIONAR TAREFA ========
     document.getElementById('addTaskBtn').addEventListener('click', () => {
         const titleVal = document.getElementById('taskTitle').value.trim();
         const descVal = document.getElementById('taskDesc').value.trim();
@@ -47,6 +50,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('manageSubjectsBtn').addEventListener('click', openSubjectsModal);
     document.getElementById('closeSubjectsModalBtn').addEventListener('click', closeSubjectsModal);
     document.getElementById('addSubjectBtn').addEventListener('click', addSubject);
+
+    // ======== LÓGICA DO MODAL DE EDIÇÃO ========
+    document.getElementById('closeEditTaskModalBtn').addEventListener('click', closeEditTaskModal);
+    document.getElementById('saveEditTaskBtn').addEventListener('click', saveEditedTask);
 });
 
 // Função segura para lidar com o sino
@@ -57,7 +64,7 @@ window.toggleAlarm = function(id) {
         const tasks = data.tasks.map(t => {
             if (t.id === id) {
                 if (t.alarmSet) {
-                    try { chrome.alarms.clear(`task-alert-${id}`); } catch(e) {}
+                    try { chrome.alarms.clear(`task-alert-${id}`); } catch(e) { console.warn(e); }
                     t.alarmSet = false;
                     needsUpdate = true;
                 } else {
@@ -178,7 +185,10 @@ function loadActiveTasks() {
             // Lógica do Sino
             const alarmIcon = task.alarmSet ? '🔔' : '🔕';
             const alarmClass = task.alarmSet ? 'alarm-active' : 'alarm-inactive';
-            const alarmBtn = `<button class="btn-alarm ${alarmClass}" data-id="${task.id}" title="Lembrete (5 min antes)">${alarmIcon}</button>`;
+            const alarmBtn = `<button class="btn-alarm" data-id="${task.id}" title="Lembrete (5 min antes)">${alarmIcon}</button>`;
+            
+            // Lógica do Botão de Editar (Adicionado o botão na mesma linha do sino e título)
+            const editBtn = `<button class="btn-edit-task" data-id="${task.id}" title="Editar Tarefa" style="background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px; border-radius: 4px;">✏️</button>`;
 
             li.innerHTML = `
                 <div class="badges-container">${statusBadge}${subjectBadge}${linkBadge}</div>
@@ -187,6 +197,7 @@ function loadActiveTasks() {
                         <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
                             <input type="checkbox" class="complete-chk" data-id="${task.id}" style="margin-right: 5px;">
                             <span style="font-weight: 600; font-size: 15px; flex: 1;">${task.title || 'Sem Título'}</span>
+                            ${editBtn}
                             ${alarmBtn}
                             <button class="btn-add-subtask" data-id="${task.id}">+</button>
                         </div>
@@ -204,12 +215,21 @@ function loadActiveTasks() {
             list.appendChild(li);
         });
 
-        // Eventos do Sino - Corrigido para isolar o clique
+        // Eventos do Sino
         document.querySelectorAll('.btn-alarm').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 toggleAlarm(e.currentTarget.getAttribute('data-id'));
+            });
+        });
+        
+        // Eventos de Editar a Tarefa (Nova Lógica)
+        document.querySelectorAll('.btn-edit-task').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openEditTaskModal(e.currentTarget.getAttribute('data-id'));
             });
         });
 
@@ -288,7 +308,7 @@ function toggleTaskStatus(id, status) {
                 t.completed = status;
                 if (status) { 
                     t.status = 'concluida'; 
-                    try { chrome.alarms.clear(`task-alert-${id}`); } catch(e){} // Desliga o alarme se completar
+                    try { chrome.alarms.clear(`task-alert-${id}`); } catch(e) { console.warn(e); } // Desliga o alarme se completar
                     t.alarmSet = false;
                     if (t.subtasks) t.subtasks = t.subtasks.map(s => ({ ...s, completed: true })); 
                 }
@@ -296,6 +316,102 @@ function toggleTaskStatus(id, status) {
             return t;
         });
         chrome.storage.local.set({tasks}, loadActiveTasks);
+    });
+}
+
+// ======== FUNÇÕES DE EDIÇÃO DE TAREFAS (NOVO MODAL) ========
+function openEditTaskModal(taskId) {
+    currentPopupEditingTaskId = taskId;
+
+    chrome.storage.local.get({ tasks: [], subjects: [] }, (data) => {
+        const task = data.tasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        const editSubjectSelect = document.getElementById('editTaskSubject');
+        editSubjectSelect.innerHTML = '<option value="">Nenhuma matéria (Opcional)</option>';
+        data.subjects.forEach(subj => {
+            const opt = document.createElement('option');
+            opt.value = subj.name;
+            opt.textContent = subj.name;
+            editSubjectSelect.appendChild(opt);
+        });
+
+        editSubjectSelect.value = task.subject || "";
+        document.getElementById('editTaskTitle').value = task.title || "";
+        document.getElementById('editTaskDesc').value = task.description || "";
+        document.getElementById('editTaskLink').value = task.link || "";
+
+        if (task.dueDate) {
+            const dateObj = new Date(task.dueDate);
+            const yyyy = dateObj.getFullYear();
+            const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const dd = String(dateObj.getDate()).padStart(2, '0');
+            document.getElementById('editTaskDate').value = `${yyyy}-${mm}-${dd}`;
+            
+            const hh = String(dateObj.getHours()).padStart(2, '0');
+            const min = String(dateObj.getMinutes()).padStart(2, '0');
+            document.getElementById('editTaskTime').value = `${hh}:${min}`;
+        }
+
+        const modal = document.getElementById('editTaskModal');
+        modal.style.display = 'flex';
+        // Delay para aplicar a classe 'active' e acionar a animação CSS suave
+        setTimeout(() => modal.classList.add('active'), 10);
+    });
+}
+
+function closeEditTaskModal() {
+    const modal = document.getElementById('editTaskModal');
+    modal.classList.remove('active');
+    setTimeout(() => { modal.style.display = 'none'; currentPopupEditingTaskId = null; }, 300);
+}
+
+function saveEditedTask() {
+    const titleVal = document.getElementById('editTaskTitle').value.trim();
+    const descVal = document.getElementById('editTaskDesc').value.trim();
+    const dateVal = document.getElementById('editTaskDate').value;
+    const timeVal = document.getElementById('editTaskTime').value;
+    const subjectVal = document.getElementById('editTaskSubject').value;
+    const linkVal = document.getElementById('editTaskLink').value.trim();
+
+    if (!titleVal || !dateVal || !timeVal) {
+        return alert("Preencha o título, data e hora!");
+    }
+
+    chrome.storage.local.get({ tasks: [] }, (data) => {
+        const tasks = data.tasks.map(task => {
+            if (task.id === currentPopupEditingTaskId) {
+                const newDueDate = new Date(`${dateVal}T${timeVal}`).getTime();
+                
+                // Trata o alarme caso a data tenha sido alterada
+                if (task.alarmSet) {
+                    const alertTime = newDueDate - (5 * 60 * 1000);
+                    if (alertTime > Date.now()) {
+                        try { chrome.alarms.create(`task-alert-${task.id}`, { when: alertTime }); } catch(e){ console.warn(e); }
+                    } else {
+                        try { chrome.alarms.clear(`task-alert-${task.id}`); } catch(e){ console.warn(e); }
+                        task.alarmSet = false;
+                    }
+                }
+                
+                return {
+                    ...task,
+                    title: titleVal,
+                    description: descVal,
+                    subject: subjectVal,
+                    link: linkVal,
+                    dueDate: newDueDate,
+                    // Se estiver com status de atrasada, mas recebeu nova data pro futuro, reativa a tarefa
+                    status: (task.status === 'atrasada' && newDueDate >= Date.now()) ? 'em_progresso' : task.status
+                };
+            }
+            return task;
+        });
+
+        chrome.storage.local.set({ tasks }, () => {
+            closeEditTaskModal();
+            loadActiveTasks(); 
+        });
     });
 }
 
